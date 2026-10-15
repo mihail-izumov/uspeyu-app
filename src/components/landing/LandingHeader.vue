@@ -20,6 +20,12 @@
   сверху сделай навыворот, когда на тёмном фоне, и в других местах тоже»).
   Тёмная клетка на титане и на тёмном стекле капсулы держалась только
   обводкой; светлая стоит сама. Файл — тот же генератор, `*-inv.svg`.
+
+  ⚠ С Д-65 здесь клетка `head` — число 87 вдвое крупнее, чем в `mid`
+  (слово владельца: «в лого 87 сделай сильно крупнее»). В капсуле у знака
+  своё поле: квадрат 36 px стоит в круглом торце капсулы с запасом 12 px
+  слева и 7 px сверху и снизу, иначе угол квадрата упирался в скругление
+  («поправь отступ вокруг иконки лого в стики-меню»).
 */
 import BrandMark from '../BrandMark.vue'
 
@@ -32,9 +38,9 @@ const emit = defineEmits(['enter', 'top'])
 
 <template>
   <header class="lh">
-    <a href="#" class="lockup" aria-label="Успею — наверх" @click.prevent="emit('top')">
-      <BrandMark state="mid" :size="48" inverse class="lk-mark" />
-      <span class="lk-word">Успею</span>
+    <a href="#" class="lockup" aria-label="Успею 87 — наверх" @click.prevent="emit('top')">
+      <BrandMark state="head" :size="48" inverse class="lk-mark" />
+      <span class="lk-word">Успею 87</span>
     </a>
     <button type="button" class="go" @click="emit('enter')">
       Войти
@@ -49,9 +55,9 @@ const emit = defineEmits(['enter', 'top'])
     :aria-hidden="compact ? undefined : 'true'"
     :inert="compact ? undefined : true"
   >
-    <a href="#" class="lockup small" aria-label="Успею — наверх" @click.prevent="emit('top')">
-      <BrandMark state="mid" :size="38" inverse class="lk-mark" />
-      <span class="lk-word">Успею</span>
+    <a href="#" class="lockup small" aria-label="Успею 87 — наверх" @click.prevent="emit('top')">
+      <BrandMark state="head" :size="36" inverse class="lk-mark" />
+      <span class="lk-word">Успею 87</span>
     </a>
     <button type="button" class="go small" @click="emit('enter')">
       Войти
@@ -140,7 +146,7 @@ const emit = defineEmits(['enter', 'top'])
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  padding: 6px 6px 6px 8px;
+  padding: 7px 7px 7px 12px;
   border-radius: 999px;
   border: 1px solid var(--lp-glass-line);
   background: var(--lp-glass);

@@ -64,17 +64,43 @@ const H = computed(() => props.pub?.horizon || null)
 
 /* ── первый экран: фраза и синяя строка ───────────────────────────────── */
 const titleLines = computed(() => {
-  const t = props.pub?.product?.welcome || 'Успею'
+  const t = props.pub?.product?.welcome || 'Успею 87'
   return t.split('. ').map((l, i, a) => (i < a.length - 1 ? `${l}.` : l))
 })
 
 /* ── протокол ─────────────────────────────────────────────────────────── */
 const { protocols: PROTOCOLS, current, name: whoName, select } = useProfile()
 const who = computed(() => current.value.id)
-/* Имя в заголовке — в родительном падеже: «Горизонт Михаила». Протоколы
-   Марии и Павла пока закрыты, но форма имени заведена сразу. */
-const GEN = { mikhail: 'Михаила', maria: 'Марии', pavel: 'Павла' }
-const whoGen = computed(() => GEN[who.value] || whoName.value)
+/* Чей расчёт — словами, в нужных падежах (Д-64 «Горизонт Михаила»; Д-65:
+   «всё ещё непонятно, что на странице данные Михаила и это его прогноз»).
+   Протоколы Марии и Павла пока закрыты, но формы имён заведены сразу. */
+const PERSON = {
+  mikhail: { name: 'Михаил', gen: 'Михаила', dat: 'Михаилу', full: 'Михаил Изюмов', fullGen: 'Михаила Изюмова', ini: 'МИ', author: true },
+  maria: { name: 'Мария', gen: 'Марии', dat: 'Марии', full: 'Мария', fullGen: 'Марии', ini: 'М' },
+  pavel: { name: 'Павел', gen: 'Павла', dat: 'Павлу', full: 'Павел', fullGen: 'Павла', ini: 'П' },
+}
+const person = computed(() => PERSON[who.value] || { name: whoName.value, gen: whoName.value, dat: whoName.value, full: whoName.value, fullGen: whoName.value, ini: whoName.value.slice(0, 1) })
+const whoGen = computed(() => person.value.gen)
+const whoFull = computed(() => person.value.full)
+const whoInitials = computed(() => person.value.ini)
+const ownerLine = computed(() => {
+  const l = Math.floor(H.value?.goal?.lived ?? 0)
+  const age = l ? `${l} ${plural(l, 'год', 'года', 'лет')}` : ''
+  return [age, person.value.author ? 'автор метода «Успею 87»' : ''].filter(Boolean).join(', ')
+})
+
+/* ── ГОЛОС И ИМЯ (Д-66, слово владельца 15.10.2026, 17:50) ─────────────────
+   «Надо решить, от лица кого сайт, предлагаю везде писать „я“ и „моё“» —
+   сайт говорит голосом Михаила. Заголовок «Горизонт Михаила.» остаётся
+   именем, как подпись под портретом, а всё, что под ним, — от первого лица.
+   Имя продукта на странице — «Успею 87» («замени везде „Успею“ на „Успею 87“»).
+   «Основатель Ранскеил» — ссылкой в новом окне на страницу Ранскеила, ту же,
+   что в подвале («Ранскеил для бизнеса»). */
+const RUNSCALE_URL = 'https://ultra.runscale.ru'
+/* «Успею 87» не рвётся по строкам: «Успею» в конце одной строки и «87»
+   в начале следующей читаются как два разных слова. Неразрывный пробел
+   ставится при показе — в мастерах текста он был бы невидимой ловушкой. */
+const NB = (t) => String(t || '').replace(/Успею 87/g, 'Успею\u00a087')
 const sheet = ref('')
 const isOpen = (k) => sheet.value === k
 function pick(p) { if (select(p)) sheet.value = '' }
@@ -92,16 +118,29 @@ function goDial(id) {
 }
 
 /* ── свежесть данных: одна строка под заголовком прибора (Д-64, п. 10) ──
-   Возраст данных решает, насколько верить вилке, поэтому он стоит рядом с
-   ней, а не отдельным разделом в конце страницы. */
+   Возраст анализов решает, насколько верить прогнозу, поэтому он стоит рядом
+   с ним. С Д-65 — без точки и словами «последние анализы»: «данные» и
+   «забор» — язык контура, а не читателя. */
 const fresh = computed(() => {
   const d = props.pub?.telemetry?.draw_days
-  if (d == null) return { kind: 'alarm', text: 'данных о заборах нет' }
+  if (d == null) return { kind: 'alarm', text: 'анализов пока нет' }
   const n = `${d} ${plural(d, 'день', 'дня', 'дней')}`
-  if (d <= 180) return { kind: 'ok', text: `данные обновлены ${n} назад` }
-  if (d <= 548) return { kind: 'watch', text: `данным ${n}` }
-  return { kind: 'alarm', text: `данным ${n}, картина устарела` }
+  if (d <= 180) return { kind: 'ok', text: `последние анализы — ${n} назад` }
+  if (d <= 548) return { kind: 'watch', text: `последние анализы — ${n} назад` }
+  return { kind: 'alarm', text: `последние анализы — ${n} назад, картина устарела` }
 })
+/* Версия расчёта вместо «методика gorizont-1.1» (Д-65, п. 7). Номер — тот же
+   `horizon.method_version`, только без служебного префикса. */
+const methodLabel = computed(() => `версия расчёта ${String(H.value?.method_version || '').replace(/^gorizont-/, '')}`)
+
+/* ── ТОЧКИ (Д-65, п. 1: «убери точки везде, где они не нужны, и поставь, где
+   нужны»). Правило одно на всю главную:
+     · заголовки разделов и строки под ними — фразы, с точкой в конце, как
+       «Важно.» на /join и заголовки Ультры;
+     · подписи, кнопки, чипы, вкладки, заголовки карточек и тезисов — без
+       точки, и внутри них тоже не бывает двух фраз;
+     · подписи-пояснения с маленькой буквы (под числом, под «Экстра-годы») —
+       без точки; тексты карточек и объяснения — предложения с точкой. */
 
 /* ── «С чем сравнить» — приём главной Ультры (блок сравнений, UD-137) ────
    ⛔ Слова — только из канона (`docs/KANON-uspeyu.md`): «этаж над
@@ -111,29 +150,47 @@ const fresh = computed(() => {
 const CMP = {
   folder: {
     tab: 'Папка анализов',
-    lead: 'В папке лежит то, что сдано. Контур видит ещё и то, чего в ней не хватает.',
+    lead: 'Папка с анализами у меня тоже была: в ней лежало то, что я успел сдать. «Успею 87» показывает ещё и пробелы: что давно пора пересдать и что я не сдавал ни разу.',
     cards: [
-      { k: 'Пустые клетки', t: 'Видно, чего нет', s: 'важно не только то, что заполнено, но и то, что пусто' },
-      { k: 'Ряд', t: 'Годы целиком', s: 'бланк описывает один день, а контур помнит весь ряд и видит, куда он идёт' },
+      { k: 'Пробелы', t: 'Видно, чего нет', s: 'Пустые места в анализах говорят о здоровье не меньше заполненных.' },
+      { k: 'Годы', t: 'Вся история', s: 'Бланк показывает один день. «Успею 87» видит мои анализы за годы и замечает, куда они меняются.' },
     ],
   },
   tracker: {
     tab: 'Фитнес-трекер',
-    lead: 'Трекер отвечает на вопрос дня, «Успею» — на вопрос жизни.',
+    lead: 'Трекер отвечает на вопрос дня, «Успею 87» — на вопрос жизни.',
     cards: [
-      { k: 'Масштаб', t: 'Годы вместо дня', s: 'вилка лет и экстра-годы там, где трекер считает готовность к тренировке' },
-      { k: 'Вместе', t: 'Этаж над трекером', s: 'трекер остаётся на руке, «Успею» с ним не спорит и его не заменяет' },
+      { k: 'Масштаб', t: 'Годы вместо дня', s: 'Трекер считает готовность к тренировке, «Успею 87» — сколько лет впереди и сколько можно добавить.' },
+      { k: 'Связка', t: 'Работают вместе', s: 'Трекер остаётся у меня на руке, а «Успею 87» смотрит на годы вперёд.' },
     ],
   },
 }
 const cmp = ref('folder')
+
+/* ── «Анализы и врачи» — что внутри кабинета (Д-66) ──────────────────────
+   Слово владельца 15.10.2026: «добавь, что внутри — личный кабинет Михаила
+   со всей аналитикой и данные для врачей, задачи по здоровью… опиши, что
+   есть, чтобы готовиться к чекапам и системно их проводить, чтобы разговоры
+   с врачами были полезнее… разверни блок про анализы и врачей».
+   ⛔ Здесь описано, ЧТО умеет кабинет, а не что в нём лежит: ни одного
+   показателя, вопроса или задачи поимённо (PUBLIC-WHITELIST §2), и ни
+   одного слова из закрытого списка дыма. */
+const DOCS = [
+  { i: 'stack', t: 'Все анализы в одном месте', s: 'Результаты за годы из разных лабораторий сведены к одним единицам, поэтому их можно сравнивать между собой.' },
+  { i: 'clock', t: 'Что пора сдать', s: 'Кабинет показывает, какие анализы устарели, каких не хватает и когда их пересдавать. Так чекап получается полным.' },
+  { i: 'page', t: 'Выписка к врачу', s: 'Перед приёмом собирается одна страница: как менялись показатели за годы, что показать и какие вопросы задать.' },
+  { i: 'chat', t: 'Вопросы и ответы врачей', s: 'Я записываю вопросы к врачам и их ответы дословно, поэтому между визитами ничего не теряется.' },
+  { i: 'check', t: 'Задачи со сроками', s: 'Каждая рекомендация врача становится задачей с датой: сдать, записаться, пересдать. Невыполненное видно сразу.' },
+  { i: 'week', t: 'Неделя за неделей', s: 'Раз в неделю я отмечаю самочувствие и события. Так видно, что с чем связано, и в кабинете врача не приходится вспоминать.' },
+]
 
 /* ── календарь: строка данных под заголовком ─────────────────────────── */
 const ru = (n) => Number(n).toLocaleString('ru-RU')
 const calLine = computed(() => {
   const w = props.pub?.weeks
   if (!w) return ''
-  return `Прожито ${ru(w.lived)} ${plural(w.lived, 'неделя', 'недели', 'недель')}, впереди по вилке ещё ${ru(w.to_current_lo)}–${ru(w.to_current_hi)}.`
+  const who = person.value.author ? 'меня' : whoGen.value
+  return `За плечами у ${who} ${ru(w.lived)} ${plural(w.lived, 'неделя', 'недели', 'недель')}, по прогнозу впереди ещё ${ru(w.to_current_lo)}–${ru(w.to_current_hi)}.`
 })
 
 /* ── метод: аккордеон ─────────────────────────────────────────────────── */
@@ -142,8 +199,10 @@ const NUM = ['Ноль', 'Один', 'Два', 'Три', 'Четыре', 'Пят
 const methodLine = computed(() => {
   const n = items.value.length
   const word = NUM[n] || String(n)
-  return `${word} ${plural(n, 'тезис', 'тезиса', 'тезисов')}, на которых стоит счёт.`
+  return `${word} ${plural(n, 'правило', 'правила', 'правил')}, по которым считает «Успею 87».`
 })
+const readSections = computed(() => ((props.pub?.onboarding && props.pub.onboarding.sections) || [])
+  .map((x) => ({ ...x, body: NB(x.body) })))
 const openItem = ref(-1)
 function toggle(i) { openItem.value = openItem.value === i ? -1 : i }
 
@@ -254,11 +313,23 @@ onBeforeUnmount(() => {
             <span v-for="l in titleLines" :key="l" class="hero-line">{{ l }}</span>
           </h1>
           <p class="hero-lead">
-            <a href="#gorizont" class="hl" @click.prevent="goDial('cur')">Горизонт <span class="u up-digit">{{ H.current.label }}</span></a><template v-if="H.goal">, <a href="#gorizont" class="hl" @click.prevent="goDial('goal')">цель <span class="u up-digit">{{ Math.round(H.goal.age) }}</span></a></template>.
+            <a href="#gorizont" class="hl" @click.prevent="goDial('cur')">Горизонт {{ whoGen }} <span class="u up-digit">{{ H.current.label }}</span></a><template v-if="H.goal">, <a href="#gorizont" class="hl" @click.prevent="goDial('goal')">цель <span class="u up-digit">{{ Math.round(H.goal.age) }}</span></a></template>.
+          </p>
+          <!-- Что это за сайт — одним абзацем простыми словами (Д-65, п. 6 и 12),
+               голосом Михаила (Д-66). -->
+          <p class="hero-sub">
+            «Успею&nbsp;87» по анализам за несколько лет считает, сколько в среднем живут
+            люди с такими данными и сколько к этому можно добавить. Ниже&nbsp;— мой&nbsp;расчёт.
+          </p>
+          <!-- Подпись — своей строкой, с воздухом от абзаца (Д-69, слово
+               владельца: «поставь на новую строку чуть через расстояние»). -->
+          <p class="hero-sig">
+            Я Михаил Изюмов, основатель
+            <a class="ext" :href="RUNSCALE_URL" target="_blank" rel="noopener">Ранскеил</a>.
           </p>
         </template>
         <template v-else>
-          <h1 class="hero-title"><span class="hero-line">Успею</span></h1>
+          <h1 class="hero-title"><span class="hero-line">Успею&nbsp;87</span></h1>
           <p class="hero-sub">Первый прогон готовится.</p>
         </template>
       </section>
@@ -276,8 +347,14 @@ onBeforeUnmount(() => {
                 <path d="M3.8 7 12 13l8.2-6" />
               </svg>
               <div class="start-text">
-                <p class="start-title">Свой горизонт</p>
-                <p class="start-line">Оставьте почту, и она сразу придёт Михаилу.</p>
+                <p class="start-title">Узнать свой горизонт</p>
+                <!-- Кому это (Д-66, слово владельца 15.10.2026, 17:51): «Успею&nbsp;87» —
+                     некоммерческая программа для сотрудников и друзей Ранскеил. -->
+                <p class="start-line">
+                  «Успею&nbsp;87» — некоммерческая программа для сотрудников и друзей
+                  <a class="ext" :href="RUNSCALE_URL" target="_blank" rel="noopener">Ранскеил</a>.
+                  Оставьте почту, и я напишу, когда смогу посчитать и ваш горизонт.
+                </p>
               </div>
             </div>
             <LeadCapture class="start-form" />
@@ -313,20 +390,29 @@ onBeforeUnmount(() => {
           </div>
 
           <h2 v-reveal class="sec-title">Горизонт {{ whoGen }}.</h2>
-          <p v-reveal class="sec-blue">Сколько прожито и сколько ещё можно успеть по данным.</p>
+          <p v-reveal class="sec-blue">Расчёт по моим анализам: сколько прожито, чего ждать и сколько можно добавить.</p>
           <p v-reveal class="chips">
-            <span class="chip" :class="fresh.kind"><span class="chip-dot" aria-hidden="true"></span>{{ fresh.text }}</span>
-            <span class="chip plain up-digit">методика {{ H.method_version }}</span>
+            <span class="chip" :class="fresh.kind">{{ fresh.text }}</span>
+            <span class="chip plain up-digit">{{ methodLabel }}</span>
           </p>
 
           <article ref="dialCard" v-reveal class="card dash">
-            <HorizonDial v-model="sel" :horizon="H" />
+            <!-- Чей расчёт — прямо на карточке, а не только в заголовке над ней:
+                 карточку читают и без заголовка, когда к ней ведёт синяя строка. -->
+            <div class="owner">
+              <span class="owner-ini" aria-hidden="true">{{ whoInitials }}</span>
+              <span class="owner-t">
+                <span class="owner-n">{{ whoFull }}</span>
+                <span class="owner-s up-digit">{{ NB(ownerLine) }}</span>
+              </span>
+            </div>
+            <HorizonDial v-model="sel" :horizon="H" :person="person" />
           </article>
 
           <button v-reveal type="button" class="card row" @click="sheet = 'reading'">
             <span class="row-t">
               <span class="row-h">Как читать Горизонт</span>
-              <span class="row-s">Что значит вилка и как она считается</span>
+              <span class="row-s">Откуда берутся эти числа и как к ним относиться</span>
             </span>
             <svg class="row-a" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.1"
                  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4l6 6-6 6" /></svg>
@@ -338,7 +424,7 @@ onBeforeUnmount(() => {
              она стоит над сравнением (Д-64, п. 8). -->
         <section class="wrap sec cmp">
           <p v-reveal class="quote">Мы не играем в кости —<br />мы считаем карты.</p>
-          <p v-reveal class="cmp-l">С чем сравнить «Успею»</p>
+          <p v-reveal class="cmp-l">С чем сравнить «Успею&nbsp;87»</p>
           <div v-reveal class="seg2" role="group" aria-label="С чем сравнить">
             <button
               v-for="(c, id) in CMP"
@@ -352,16 +438,50 @@ onBeforeUnmount(() => {
           </div>
           <Transition name="cf" mode="out-in">
             <div :key="cmp" class="cmp-body">
-              <p class="cmp-lead">{{ CMP[cmp].lead }}</p>
+              <p class="cmp-lead">{{ NB(CMP[cmp].lead) }}</p>
               <div class="cmp-cards">
                 <div v-for="c in CMP[cmp].cards" :key="c.t" class="card cmp-card">
                   <span class="cmp-k">{{ c.k }}</span>
                   <span class="cmp-t">{{ c.t }}</span>
-                  <span class="cmp-s">{{ c.s }}</span>
+                  <span class="cmp-s">{{ NB(c.s) }}</span>
                 </div>
               </div>
             </div>
           </Transition>
+        </section>
+
+        <!-- ═══ Анализы и врачи — что внутри кабинета (Д-66) ═══
+             Строки — как «Что дальше» на «Сегодня» Трека: значок, заголовок,
+             одна-две фразы. -->
+        <section class="wrap sec">
+          <h2 v-reveal class="sec-title">Анализы и врачи.</h2>
+          <p v-reveal class="sec-blue">
+            Внутри «Успею&nbsp;87» — мой личный кабинет. С ним я готовлюсь к чекапам
+            и прохожу их по системе, а разговор с врачом выходит полезнее.
+          </p>
+          <div v-reveal class="card docs">
+            <div v-for="d in DOCS" :key="d.t" class="doc">
+              <span class="doc-i" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <template v-if="d.i === 'stack'"><path d="M12 3 3 7.5 12 12l9-4.5L12 3z" /><path d="M3 12l9 4.5 9-4.5" /><path d="M3 16.5 12 21l9-4.5" /></template>
+                  <template v-else-if="d.i === 'clock'"><circle cx="12" cy="12" r="8.5" /><path d="M12 7.5V12l3 2" /></template>
+                  <template v-else-if="d.i === 'page'"><path d="M7 3h7l4 4v14H7z" /><path d="M14 3v4h4" /><path d="M10 12h5M10 15.5h5" /></template>
+                  <template v-else-if="d.i === 'chat'"><path d="M20 12a8 8 0 0 1-11.7 7.1L4 20l1-4A8 8 0 1 1 20 12z" /><path d="M9 11h6M9 14h4" /></template>
+                  <template v-else-if="d.i === 'check'"><rect x="4" y="4" width="16" height="16" rx="3.5" /><path d="M8.5 12.2l2.4 2.4 4.6-5" /></template>
+                  <template v-else><path d="M3 12h4l2.5-6 5 12 2.5-6h4" /></template>
+                </svg>
+              </span>
+              <span class="doc-t">
+                <span class="doc-h">{{ d.t }}</span>
+                <span class="doc-s">{{ d.s }}</span>
+              </span>
+            </div>
+          </div>
+          <p v-reveal class="docs-lock">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5" /><path d="M8.5 10.5V7.5a3.5 3.5 0 0 1 7 0v3" /></svg>
+            Кабинет закрыт паролем, потому что в нём мои медицинские подробности. Кнопка «Войти»
+            наверху ведёт туда. На экстренный случай пароль есть у моих родственников, Марии и Максима.
+          </p>
         </section>
 
         <!-- ═══ Календарь жизни ═══ -->
@@ -383,7 +503,7 @@ onBeforeUnmount(() => {
         <!-- ═══ Метод — аккордеон, как «Важно.» на /join ═══ -->
         <section v-if="items.length" class="wrap sec">
           <h2 v-reveal class="sec-title">Метод.</h2>
-          <p v-reveal class="sec-muted">{{ methodLine }}</p>
+          <p v-reveal class="sec-muted">{{ NB(methodLine) }}</p>
           <div v-reveal class="card acc">
             <div v-for="(m, i) in items" :key="i" class="acc-item" :class="{ open: openItem === i }">
               <button
@@ -397,7 +517,7 @@ onBeforeUnmount(() => {
                      stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8l5 5 5-5" /></svg>
               </button>
               <div class="acc-body">
-                <div class="acc-in"><p>{{ m.text }}</p></div>
+                <div class="acc-in"><p>{{ NB(m.text) }}</p></div>
               </div>
             </div>
           </div>
@@ -407,7 +527,7 @@ onBeforeUnmount(() => {
              Знак — одной буквой, без слова (Д-64, п. 12). -->
         <section class="wrap sec end">
           <div v-reveal class="blue">
-            <BrandMark state="min" :size="44" inverse class="blue-mark" />
+            <BrandMark state="head" :size="88" inverse class="blue-mark" />
             <p class="motto">{{ pub.product.motto }}</p>
             <p class="author">{{ pub.product.author }}</p>
             <button type="button" class="blue-go" @click="toCapture">Узнать свой горизонт</button>
@@ -423,9 +543,15 @@ onBeforeUnmount(() => {
                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8" /></svg>
             </a>
             <button v-if="version" type="button" class="ver" @click="sheet = 'versions'">
-              Успею <span class="ver-n up-digit">{{ version.version }}</span>
+              Успею&nbsp;87 <span class="ver-n up-digit">{{ version.version }}</span>
             </button>
           </div>
+          <!-- Посвящение (Д-68, слово владельца 15.10.2026: «добавь серым
+               некрупно текст в самом низу… Вечная память: Изюмов Василий
+               Лаврентьевич 1939–2026 (87 лет); если „вечная память“ слишком
+               угрюмо — придумай другую»). «Памяти…» — обычная форма
+               посвящения, без траурной интонации. -->
+          <p class="memo up-digit">Памяти Василия Лаврентьевича Изюмова, 1939–2026 (87&nbsp;лет)</p>
         </footer>
       </template>
     </main>
@@ -433,6 +559,11 @@ onBeforeUnmount(() => {
     <!-- ═══ ШТОРКИ — как у лендинга Ультры; письмо — легендой Ротора ═══ -->
     <template v-if="ready">
       <LandingSheet :open="isOpen('who')" title="Чей горизонт" @close="sheet = ''">
+        <p class="who-p">
+          Сейчас открыт мой расчёт. Я Михаил Изюмов, основатель
+          <a class="ext" :href="RUNSCALE_URL" target="_blank" rel="noopener">Ранскеил</a>
+          и автор метода «Успею&nbsp;87». Расчёты Марии и Павла появятся позже.
+        </p>
         <ul class="whos">
           <li v-for="p in PROTOCOLS" :key="p.id">
             <button type="button" class="whorow" :class="{ off: p.soon, on: p.id === who }" :disabled="p.soon" @click="pick(p)">
@@ -454,17 +585,17 @@ onBeforeUnmount(() => {
         :title="(pub.onboarding && pub.onboarding.title) || 'Как читать Горизонт'"
         @close="sheet = ''"
       >
-        <ReadingBlocks class="rd" :sections="(pub.onboarding && pub.onboarding.sections) || []" />
+        <ReadingBlocks class="rd" :sections="readSections" />
       </LandingSheet>
 
-      <LandingSheet :open="isOpen('versions')" title="Версии «Успею»" @close="sheet = ''">
+      <LandingSheet :open="isOpen('versions')" title="Версии «Успею&nbsp;87»" @close="sheet = ''">
         <ol class="vers">
           <li v-for="(v, i) in pub.versions" :key="v.date + v.version" class="vr" :class="{ first: i === 0 }">
             <span class="vr-top">
               <span class="vr-n up-digit">{{ v.version }}</span>
               <span class="vr-d up-digit">{{ v.date.split('-').reverse().join('.') }}</span>
             </span>
-            <p class="vr-t">{{ v.text }}</p>
+            <p class="vr-t">{{ NB(v.text) }}</p>
           </li>
         </ol>
         <PoweredBy class="pb" />
@@ -547,7 +678,37 @@ onBeforeUnmount(() => {
   transition: background-size 0.2s ease;
 }
 .hl:hover .u { background-image: linear-gradient(currentColor, currentColor); }
-.hero-sub { margin: 14px 0 0; font-size: 19px; font-weight: 600; color: var(--text-secondary); }
+/* Ссылка внутри текста («основатель Ранскеил») — синим, с тихой чертой,
+   открывается в новом окне. */
+.ext {
+  color: var(--action-text);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.ext:hover { text-decoration-color: currentColor; }
+.ext:focus-visible { outline: 2px solid var(--action-text); outline-offset: 2px; border-radius: 4px; }
+.hero-sub {
+  position: relative;
+  z-index: 1;
+  margin: 18px auto 0;
+  max-width: 31rem;
+  font-size: 16.5px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+.hero-sig {
+  position: relative;
+  z-index: 1;
+  margin: 16px auto 0;
+  font-size: 16.5px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--text);
+}
 .hero-note { margin: 10px 0 0; font-size: 12.5px; color: var(--text-muted); }
 
 /* ── стеклянная плашка в кольце (StartPanel Ультры) ── */
@@ -699,13 +860,23 @@ onBeforeUnmount(() => {
   min-height: 28px; padding: 0 12px; border-radius: 999px;
   font-size: 13px; font-weight: 600;
 }
-.chip-dot { width: 7px; height: 7px; border-radius: 999px; background: currentColor; }
 .chip.ok { color: var(--sig-ok-ink); background: var(--sig-ok-fill); }
 .chip.watch { color: var(--sig-watch-ink); background: var(--sig-watch-fill); }
 .chip.alarm { color: var(--sig-alarm-ink); background: var(--sig-alarm-fill); }
 .chip.plain { color: var(--text-secondary); background: var(--lp-glass); border: 1px solid var(--lp-glass-line); font-weight: 500; }
 
-.dash { padding: 18px 16px 18px; scroll-margin-top: 90px; }
+.dash { padding: 16px 16px 18px; scroll-margin-top: 90px; }
+/* Чей расчёт — шапка карточки, как профиль в шапке дашбордов Трека. */
+.owner { display: flex; align-items: center; gap: 11px; padding: 2px 2px 12px; margin-bottom: 6px; border-bottom: 1px solid var(--line); }
+.owner-ini {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 38px; height: 38px; flex: 0 0 38px; border-radius: 999px;
+  background: var(--action); color: var(--action-ink);
+  font-size: 14px; font-weight: 700; letter-spacing: 0.02em;
+}
+.owner-t { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.owner-n { font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
+.owner-s { font-size: 13px; color: var(--text-muted); }
 
 /* ── «Как читать Горизонт» — строка-карточка, как «Что дальше» в Треке ── */
 .row {
@@ -792,6 +963,25 @@ onBeforeUnmount(() => {
   letter-spacing: -0.03em;
   color: var(--text);
 }
+
+/* ── «Анализы и врачи» ── */
+.docs { padding: 6px 0; }
+.doc { display: flex; align-items: flex-start; gap: 14px; padding: 14px 18px; }
+.doc + .doc { border-top: 1px solid var(--line); }
+.doc-i {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 38px; height: 38px; flex: 0 0 38px; border-radius: 12px;
+  background: var(--surface-2); color: var(--action-text);
+}
+.doc-i svg { width: 21px; height: 21px; }
+.doc-t { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.doc-h { font-size: 16px; font-weight: 600; line-height: 1.3; }
+.doc-s { font-size: 14px; line-height: 1.5; color: var(--text-secondary); }
+.docs-lock {
+  display: flex; align-items: flex-start; gap: 10px;
+  margin: 14px 4px 0; font-size: 13.5px; line-height: 1.5; color: var(--text-muted);
+}
+.docs-lock svg { width: 18px; height: 18px; flex: 0 0 18px; margin-top: 1px; }
 
 /* ── календарь: легенда ровной строкой (Д-64, п. 9) ──
    В общем `LifeCalendar.vue` класс абзаца «лет впереди» `.ahead` совпал с
@@ -891,8 +1081,8 @@ onBeforeUnmount(() => {
 .foot-link {
   display: inline-flex; align-items: center; gap: 6px;
   min-height: 36px; padding: 0 6px;
-  color: var(--text); text-decoration: none;
-  font-size: 15px; font-weight: 600; letter-spacing: -0.01em;
+  color: var(--text); text-decoration: none; white-space: nowrap;
+  font-size: 14.5px; font-weight: 600; letter-spacing: -0.01em;
   border-radius: 999px;
 }
 .foot-link svg { width: 14px; height: 14px; color: var(--text-muted); transition: transform 0.2s ease, color 0.2s ease; }
@@ -901,12 +1091,21 @@ onBeforeUnmount(() => {
 /* Бейдж версии — имя продукта и номер прошивки (Д-64, п. 14). */
 .ver {
   display: inline-flex; align-items: center; gap: 6px;
-  min-height: 36px; padding: 0 14px;
+  min-height: 36px; padding: 0 13px;
   border: 0; border-radius: 999px;
-  background: var(--surface-2); color: var(--text);
+  background: var(--surface-2); color: var(--text); white-space: nowrap;
   font: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer;
 }
 .ver-n { font-weight: 500; color: var(--text-muted); }
+.memo {
+  margin: 22px auto 0;
+  max-width: 24rem;
+  text-align: center;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-muted);
+  text-wrap: balance;
+}
 .ver:focus-visible { outline: 2px solid var(--action-text); outline-offset: 2px; }
 
 /* ── проявление ── */
@@ -914,6 +1113,7 @@ onBeforeUnmount(() => {
 .rv.rv-in { opacity: 1; transform: none; }
 
 /* ── шторки главной (они в <body>, тёмный набор несут сами) ── */
+.who-p { margin: 0 0 8px; font-size: 15px; line-height: 1.5; color: var(--text-secondary); }
 .whos { list-style: none; margin: 0; padding: 0 0 8px; }
 .whorow {
   display: flex; align-items: center; justify-content: space-between; gap: 10px;
@@ -946,7 +1146,15 @@ onBeforeUnmount(() => {
 .vr.first .vr-t { color: var(--text); }
 .pb { margin: 14px 0 6px; }
 
+/* Узкие телефоны (360): ссылка и бейдж версии в одну строку капсулы. */
+@media (max-width: 380px) {
+  .foot-pill { padding-left: 10px; gap: 6px; }
+  .foot-link { padding: 0 4px; font-size: 13.5px; gap: 4px; }
+  .foot-link svg { width: 12px; height: 12px; }
+  .ver { padding: 0 10px; font-size: 13px; gap: 4px; }
+}
 @media (min-width: 760px) {
+  .memo { max-width: none; }
   .hero { padding-top: 64px; }
   .sec { padding-top: 104px; }
 }

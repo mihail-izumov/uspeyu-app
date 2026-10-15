@@ -24,7 +24,8 @@
      витрины (PUBLIC-WHITELIST §2), и дым читает страницу закрытой.
 */
 import { nextTick, onBeforeUnmount, ref, watch } from 'vue'
-import { LETTER, LETTER_SIGN, LETTER_TITLE } from '../../content/letter.js'
+import BrandMark from '../BrandMark.vue'
+import { LETTER, LETTER_ORG, LETTER_ROLE, LETTER_SIGN, LETTER_TITLE } from '../../content/letter.js'
 
 const props = defineProps({ open: { type: Boolean, default: false } })
 const emit = defineEmits(['close'])
@@ -165,12 +166,16 @@ onBeforeUnmount(() => {
         <div ref="stage" class="lg-stage">
           <div class="lg-plane">
             <div ref="crawl" class="lg-crawl">
-              <p class="lg-over">Успею</p>
+              <!-- Над заголовком — знак с 87, а не слово «Успею» (Д-65, слово
+                   владельца: «вместо „Успею“ поставь лого с 87»). У Ротора на
+                   этом месте подпись «Ранскеил»; здесь марка сама подписывает
+                   письмо. -->
+              <div class="lg-over"><BrandMark state="head" :size="72" inverse class="lg-mark" /></div>
               <!-- Неразрывный пробел перед тире: прописными в 52 px строка «— ЭТО»
                    иначе начиналась бы с тире. -->
               <h2 class="lg-title">{{ LETTER_TITLE.replace(' —', '\u00a0—') }}</h2>
-              <p v-for="(p, i) in LETTER" :key="i">{{ p }}</p>
-              <p class="lg-sign">{{ LETTER_SIGN }}</p>
+              <p v-for="(p, i) in LETTER" :key="i">{{ p.replace(/Успею 87/g, 'Успею\u00a087') }}</p>
+              <p class="lg-sign">{{ LETTER_SIGN }}, {{ LETTER_ROLE }} <a :href="LETTER_ORG.url" target="_blank" rel="noopener">{{ LETTER_ORG.name }}</a></p>
             </div>
           </div>
         </div>
@@ -218,14 +223,7 @@ onBeforeUnmount(() => {
   will-change: transform;
 }
 .lg-crawl p { margin: 0 0 1.15em; }
-.lg-crawl .lg-over {
-  margin: 0 -0.32em 14px 0;
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 0.32em;
-  text-transform: uppercase;
-  color: var(--lg-over);
-}
+.lg-crawl .lg-over { display: flex; justify-content: center; margin: 0 0 26px; }
 .lg-title {
   margin: 0 -0.04em 0.8em 0;
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
@@ -238,6 +236,9 @@ onBeforeUnmount(() => {
   text-wrap: balance;
 }
 .lg-crawl .lg-sign { margin-top: 2em; font-size: 15px; color: var(--lg-muted); }
+/* Ссылка в подписи — как в легенде Ротора: светлым, с тонкой чертой. */
+.lg-sign a { color: var(--lg-ink); text-decoration: none; border-bottom: 1px solid var(--lg-btn-hi); }
+.lg-sign a:hover { border-bottom-color: var(--lg-ink); }
 .lg-bar {
   position: absolute;
   left: 0;

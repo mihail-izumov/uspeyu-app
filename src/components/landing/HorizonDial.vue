@@ -48,6 +48,12 @@ import { plural } from '../../composables/useData.js'
 const props = defineProps({
   horizon: { type: Object, required: true },
   modelValue: { type: String, default: 'cur' },
+  /* Чей это расчёт — тексты прибора говорят о человеке, а не о «профиле»
+     (Д-65, слово владельца: «всё ещё непонятно, что на странице данные
+     Михаила и это его прогноз»). Падежи — готовыми строками. */
+  person: { type: Object, default: () => ({ name: 'Михаил', gen: 'Михаила', dat: 'Михаилу' }) },
+  /* `person.author` — расчёт самого автора: тогда прибор говорит его голосом,
+     от первого лица (Д-66: «предлагаю везде писать „я“ и „моё“»). */
 })
 const emit = defineEmits(['update:modelValue'])
 
@@ -198,11 +204,11 @@ const READ = computed(() => {
   const g = goal.value
   const l = Math.floor(lived.value)
   return {
-    fact: { label: 'Факт, лет', value: String(l), sub: 'прожито' },
-    cur: { label: 'Горизонт, лет', value: cur.value.label, sub: 'по текущим данным' },
-    plan: { label: 'План, лет', value: plan.value.label, sub: 'если отработать рычаги' },
+    fact: { label: 'Факт, лет', value: String(l), sub: 'уже прожито' },
+    cur: { label: 'Прогноз, лет', value: cur.value.label, sub: 'при таких анализах' },
+    plan: { label: 'План, лет', value: plan.value.label, sub: 'если подтянуть показатели' },
     goal: g
-      ? { label: 'Цель, лет', value: String(Math.round(g.age)), sub: 'поставлена, а не вычислена' }
+      ? { label: 'Цель, лет', value: String(Math.round(g.age)), sub: props.person.author ? 'я поставил её сам' : `${props.person.name} поставил её сам` }
       : null,
   }
 })
@@ -210,20 +216,31 @@ const readout = computed(() => READ.value[sel.value] || READ.value.cur)
 
 const extra = computed(() => props.horizon.on_the_table || null)
 
-/* Объяснения — интерпретация данных, а не устройства экрана (Д-64:
-   «убери все технические слова, которые объясняют интерфейс»). */
+/* Объяснения — простым языком, про человека и его анализы (Д-64: без слов
+   об устройстве экрана; Д-65: «для простых людей, сейчас всё очень заумно»). */
 const SAY = computed(() => {
   const l = Math.floor(lived.value)
   const e = extra.value
   const g = goal.value
+  const P = props.person
+  const me = !!P.author
+  const who = {
+    dat: me ? 'Мне' : P.dat,
+    gen: me ? 'меня' : P.gen,
+    set: me ? 'я поставил себе сам' : `${P.name} поставил себе сам`,
+    up: me ? 'Если я подтяну' : 'Если подтянуть',
+  }
+  const grows = me ? 'вырастет' : 'вырастает'
   return {
-    fact: `Прожито ${l} ${plural(l, 'год', 'года', 'лет')}, и это единственное, что известно точно.`,
-    cur: `По сегодняшним данным горизонт — ${cur.value.label} лет. Точнее внутри этой вилки сказать нельзя: со свежими данными она сужается, со старыми расширяется.`,
+    fact: `${who.dat} ${l} ${plural(l, 'год', 'года', 'лет')}. Это единственное число на шкале, которое известно точно.`,
+    cur: `Люди с такими же анализами, как у ${who.gen}, в среднем живут до ${cur.value.label} лет. Точнее сказать нельзя: чем свежее и полнее анализы, тем уже этот диапазон.`,
     plan: e
-      ? `${plan.value.label} лет выходит, если довести до цели все рычаги, которые контур уже знает. Разница с прогнозом даёт экстра-годы: +${ru(e.years)}, от ${ru(e.years_lo)} до ${ru(e.years_hi)}.`
-      : `${plan.value.label} лет выходит, если довести до цели все рычаги, которые контур уже знает.`,
+      ? `${who.up} к цели показатели, на которые можно повлиять, прогноз ${grows} до ${plan.value.label} лет. Эта прибавка и есть экстра-годы: около +${ru(e.years)}, от ${ru(e.years_lo)} до ${ru(e.years_hi)}.`
+      : `${who.up} к цели показатели, на которые можно повлиять, прогноз ${grows} до ${plan.value.label} лет.`,
     goal: g
-      ? `Рубеж ${Math.round(g.age)} назначен, его не вычисляли. От плана до рубежа остаются годы, которых известные рычаги пока не дают.`
+      ? (g.reached_by_plan
+        ? `${Math.round(g.age)} — цель, которую ${who.set}. План до неё дотягивает.`
+        : `${Math.round(g.age)} — цель, которую ${who.set}. Известные способы пока не дотягивают до неё на ${g.gap_label} лет.`)
       : '',
   }
 })
@@ -410,15 +427,20 @@ defineExpose({ el: box })
       </Transition>
 
       <p class="note">
-        Вилка показывает среднее ожидание для профиля с такими данными. Это не срок человека и не дата.
+        Все числа здесь — среднее для людей с похожими анализами. Это не срок человека и не дата.
       </p>
 
       <p v-if="horizon.old_picture" class="stale">{{ horizon.old_picture_note }}</p>
 
       <div v-if="extra" class="stat">
-        <span class="stat-l">Экстра-годы</span>
-        <span class="stat-v up-digit">+{{ ru(extra.years) }}</span>
+        <span class="stat-lw">
+          <span class="stat-l">Экстра-годы</span>
+          <span class="stat-s">столько можно добавить к прогнозу</span>
+        </span>
+        <!-- Диапазон слева от числа (Д-66): «+6,4» встаёт по правому краю, и
+             строка читается ровно — подпись слева, число справа, как в Треке. -->
         <span class="stat-r up-digit">{{ ru(extra.years_lo) }}–{{ ru(extra.years_hi) }}</span>
+        <span class="stat-v up-digit">+{{ ru(extra.years) }}</span>
       </div>
 
       <!-- ⛔ Зазор идёт вместе с тем, что с ним делать (канон Д-40, следствие 1). -->
@@ -428,19 +450,19 @@ defineExpose({ el: box })
           <span class="gv up-digit">{{ goal.gap_label }} <i>лет</i></span>
         </div>
         <p class="gn">
-          Этих лет известные контуру рычаги не дают. В них входит всё, чего в контуре
-          пока нет: неучтённые факторы, неизмеренные слои данных и то, чего не знает
-          наука. Зазор — рабочее задание, и с новыми данными он сужается.
+          Столько лет до цели пока не даёт ни один известный способ. Сюда входит то,
+          что ещё не измерено, и то, чего пока не знает наука. {{ person.author ? 'Для меня это' : 'Это' }}
+          рабочее задание: с новыми анализами разрыв сужается.
         </p>
       </div>
       <div v-else-if="goal" class="gapcard">
-        <span class="gl">Рубеж {{ Math.round(goal.age) }} достижим в плане контура.</span>
+        <span class="gl">Рубеж {{ Math.round(goal.age) }} достижим, если выполнить план.</span>
       </div>
 
       <p v-if="goal" class="own">
-        [ВАЖНО] Рубеж <b>{{ Math.round(goal.age) }}</b> поставлен решением Михаила, модель его
-        не выводила. Ни один коэффициент «Горизонта» под него не подобран, иначе число
-        ничего бы не значило.
+        [ВАЖНО] Рубеж <b>{{ Math.round(goal.age) }}</b> поставлен {{ person.author ? 'моим решением' : `решением ${person.gen}` }},
+        расчёт его не выводил. Ни один коэффициент расчёта под него не подобран, иначе этой
+        цифре нельзя было бы верить.
       </p>
     </div>
   </div>
@@ -608,22 +630,27 @@ defineExpose({ el: box })
 
 .stat {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 10px;
   margin-top: 16px;
   padding-top: 14px;
   border-top: 1px solid var(--line);
 }
+.stat-lw { flex: 1 1 auto; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.stat-s { font-size: 12px; color: var(--text-muted); }
 .stat-l {
-  flex: 1 1 auto;
   font-size: 11.5px;
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-muted);
 }
-.stat-v { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; color: var(--text); }
-.stat-r { font-size: 12.5px; color: var(--text-muted); }
+.stat-v { flex: 0 0 auto; font-size: 22px; font-weight: 700; letter-spacing: -0.02em; color: var(--text); white-space: nowrap; }
+.stat-r {
+  flex: 0 0 auto; padding: 3px 9px; border-radius: 999px;
+  background: var(--surface-2);
+  font-size: 12.5px; font-weight: 600; color: var(--text-secondary); white-space: nowrap;
+}
 
 /* Зазор — карточка «Важно» Трека, только фиолетовая. */
 .gapcard {
@@ -633,9 +660,11 @@ defineExpose({ el: box })
   border: 1px solid var(--sig-blocked);
   background: var(--sig-blocked-fill);
 }
-.gtop { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.gtop { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 .gl { font-size: 13px; color: var(--sig-blocked-ink); }
-.gv { font-size: 24px; font-weight: 700; color: var(--sig-blocked-ink); }
+/* «Между планом и рубежом» — заголовком карточки (Д-66: «крупнее и жирнее»). */
+.gtop .gl { font-size: 16px; font-weight: 700; line-height: 1.2; letter-spacing: -0.01em; }
+.gv { flex: 0 0 auto; font-size: 26px; font-weight: 700; color: var(--sig-blocked-ink); white-space: nowrap; }
 .gv i { font-style: normal; font-size: 13px; font-weight: 500; }
 .gn { margin: 8px 0 0; font-size: 12.5px; line-height: 1.5; color: var(--sig-blocked-ink); }
 

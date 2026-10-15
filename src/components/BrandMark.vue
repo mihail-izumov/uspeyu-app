@@ -15,6 +15,8 @@
        · `min`  — только буква            → до ~48 px  (фавикон, шапка)
        · `mid`  — число · буква           → от ~64 px  (иконки установки)
        · `full` — число · буква · слово   → от ~96 px  (витрина, OG, обложки)
+       · `head` — крупное число · буква   → 32–96 px  (шапка и плашки главной,
+                 Д-65: «в лого 87 сделай сильно крупнее»)
 
   ⚠ Плашка знака сплошная и тёмная, поэтому он одинаково стоит и на светлой,
     и на тёмной теме — подложку под него класть не нужно.
@@ -29,12 +31,12 @@
     адреса страницы, а не от корня приложения.
 */
 const props = defineProps({
-  state: { type: String, default: 'mid' },   // full · mid · min
+  state: { type: String, default: 'mid' },   // full · mid · min · head
   size: { type: Number, default: 34 },
   inverse: { type: Boolean, default: false },
 })
 
-const FILES = { full: 'icon-full.svg', mid: 'icon-mark.svg', min: 'icon.svg' }
+const FILES = { full: 'icon-full.svg', mid: 'icon-mark.svg', min: 'icon.svg', head: 'icon-head.svg' }
 const base = import.meta.env.BASE_URL || './'
 const file = FILES[props.state] || FILES.mid
 const src = `${base}icons/${props.inverse ? file.replace('.svg', '-inv.svg') : file}`
@@ -46,7 +48,7 @@ const src = `${base}icons/${props.inverse ? file.replace('.svg', '-inv.svg') : f
     :src="src"
     :width="size"
     :height="size"
-    alt="Успею"
+    alt="Успею 87"
     decoding="async"
   />
 </template>

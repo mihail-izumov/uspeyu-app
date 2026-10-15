@@ -47,7 +47,7 @@ async function submit() {
   if (!RE.test(v) || !wants.value || state.value === 'sending') return
 
   if (!LEADS_URL) {
-    const subject = encodeURIComponent('Успею — хочу узнать свой горизонт')
+    const subject = encodeURIComponent('Успею 87 — хочу узнать свой горизонт')
     const body = encodeURIComponent(`Почта: ${v}\nХочу узнать свой горизонт: да\n`)
     window.location.href = `mailto:${TO}?subject=${subject}&body=${body}`
     state.value = 'mail'
@@ -107,7 +107,7 @@ async function submit() {
         </button>
       </div>
       <input v-model="trap" type="text" name="website" class="trap" tabindex="-1" autocomplete="off" aria-hidden="true" />
-      <p v-if="bad" class="err">Похоже на опечатку: нужен адрес вида имя@почта.ру</p>
+      <p v-if="bad" class="err">Похоже на опечатку: нужен адрес вида имя@почта.ру.</p>
       <p v-else-if="state === 'fail'" class="err">
         Не получилось отправить. Попробуйте ещё раз или напишите на <a :href="`mailto:${TO}`">{{ TO }}</a>.
       </p>
@@ -125,7 +125,7 @@ async function submit() {
 
     <p v-else-if="state === 'sent'" class="ok">
       <span class="ok-dot" aria-hidden="true"></span>
-      Готово, почта у Михаила.
+      Готово, почта у меня. Напишу вам сам.
     </p>
     <p v-else class="ok">
       Открылось почтовое приложение, письмо нужно отправить самому. Если оно не открылось,
