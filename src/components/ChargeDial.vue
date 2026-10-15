@@ -117,7 +117,7 @@ const stroke = computed(() => `var(--sig-${level.value})`)
         </template>
 
         <span
-          class="mt-2 font-label text-[0.6875rem] uppercase tracking-[0.16em]"
+          class="mt-2 kh-eyebrow"
           style="margin-right: -0.16em"
           :style="{ color: `var(--sig-${level})` }"
         >{{ word }}</span>

@@ -2,6 +2,7 @@
 import { nextTick, ref, watch } from 'vue'
 import TabBar from './TabBar.vue'
 import TabIcon from './TabIcon.vue'
+import BrandMark from './BrandMark.vue'
 import { useScrollNav } from '../composables/useScrollNav.js'
 
 /*
@@ -25,6 +26,18 @@ import { useScrollNav } from '../composables/useScrollNav.js'
 
   ⚠ Уход капсулы — только `transform`, без `opacity`: панель гасла раньше, чем
   доезжала до края, и движение читалось рывком, а не жестом.
+
+  ⚠⚠ Д-70 (15.10.2026): шапка снята с главной. Слово владельца: «причесать
+  дизайн всего, что внутри, стандарты — из лендинга Ультры и /join».
+    · Наверху в потоке — та же связка, что на главной: знак `head` и
+      «Успею 87» (тёмная клетка: холст светлый, навыворот не нужен).
+      На разделах вне капсулы на её месте стоит возврат.
+    · При прокрутке выезжает стеклянная капсула, как у главной и Ультры,
+      а не полоса во всю ширину: знак, имя раздела и «Выйти». Скрытая
+      капсула `inert` — палец и экранный диктор её не находят.
+    · Холст — `--bg` со светом и зерном `--bg-veil` (D-618, D-676). Свет
+      стоит на оболочке, а не на ленте: уехав с содержимым, пятно стало бы
+      светлой полосой, гуляющей по странице.
 */
 const props = defineProps({
   tabs: { type: Array, default: () => [] },
@@ -59,64 +72,81 @@ const activeIcon = () => (props.tabs.find((t) => t.id === props.active) || {}).i
 <template>
   <div
     class="relative mx-auto flex h-[100dvh] w-full max-w-[430px] flex-col overflow-hidden pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] md:border-x"
-    :style="{ background: 'var(--bg)', borderColor: 'var(--line)' }"
+    :style="{ backgroundColor: 'var(--bg)', backgroundImage: 'var(--bg-veil, none)', borderColor: 'var(--line)' }"
   >
     <div
       ref="scrollEl"
       class="relative flex-1 overflow-y-auto overflow-x-hidden overscroll-y-contain"
       @scroll="onScroll"
     >
-      <!-- Липкая полоса: h-0, появляется прозрачностью. -->
-      <header class="sticky top-0 z-20 h-0">
-        <div
-          class="absolute inset-x-0 top-0 w-full pt-[env(safe-area-inset-top)] transition-opacity duration-200"
-          :class="collapsed ? 'opacity-100 backdrop-blur' : 'pointer-events-none opacity-0'"
-          :style="collapsed
-            ? { background: 'color-mix(in srgb, var(--bg) 88%, transparent)', borderBottom: '1px solid var(--line)' }
-            : {}"
-        >
-          <div class="grid h-11 w-full grid-cols-[1fr_7.5rem] items-center pl-5">
-            <div data-test="nav-compact-title" class="pointer-events-none flex min-w-0 items-center">
-              <span class="truncate text-[1.0625rem] font-semibold">{{ title }}</span>
-            </div>
-            <div class="min-h-[44px]" aria-hidden="true"></div>
-          </div>
-        </div>
-
-        <!-- ⛔ Действие справа — ОТДЕЛЬНЫМ слоем поверх полосы: полоса гаснет
-             вместе с заголовком, а «Войти» и «Выйти» гаснуть не должны. Раньше
-             кнопка жила внутри полосы и до первой прокрутки её не было. -->
-        <div class="pointer-events-none absolute inset-x-0 top-0 z-10 pt-[env(safe-area-inset-top)]">
-          <div class="flex h-11 items-center justify-end pr-4">
-            <div class="pointer-events-auto"><slot name="header-trailing" /></div>
-          </div>
-        </div>
-      </header>
-
-      <!-- Крупный заголовок в потоке (внутренние экраны контура). -->
+      <!-- Строка контекста в потоке: связка «Успею 87» или возврат слева,
+           действие справа. Уезжает вместе со страницей; дальше её держит
+           стеклянная капсула. -->
       <div
         v-if="bigTitle"
-        class="px-5 pb-3 pt-[calc(env(safe-area-inset-top)+3.25rem)]"
+        class="flex items-center justify-between gap-3 pl-4 pr-3 pt-[calc(env(safe-area-inset-top)+0.5rem)]"
       >
         <button
           v-if="back"
           type="button"
-          class="-ml-1 mb-1 inline-flex min-h-[36px] items-center gap-1 pr-2 text-[0.9375rem] active:opacity-60"
+          class="kh-pill kh-rim -ml-0.5 inline-flex h-9 items-center gap-0.5 rounded-full pl-1.5 pr-3.5 text-[0.9375rem] font-semibold active:opacity-80"
           :style="{ color: 'var(--action-text)' }"
           @click="emit('back')"
         >
-          <svg viewBox="0 0 20 20" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <svg viewBox="0 0 20 20" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M12 4 6 10l6 6" />
           </svg>
           Заряд
         </button>
-        <h1 class="truncate text-[2.125rem] font-bold leading-tight tracking-tight">{{ title }}</h1>
+        <span v-else class="inline-flex min-w-0 items-center gap-2.5" aria-label="Успею 87">
+          <BrandMark state="head" :size="36" class="sh-mark" />
+          <span class="sh-word">Успею 87</span>
+        </span>
+        <div class="flex min-h-[44px] shrink-0 items-center"><slot name="header-trailing" /></div>
+      </div>
+
+      <!-- Крупный заголовок в потоке (внутренние экраны контура). -->
+      <div v-if="bigTitle" class="px-5 pb-4 pt-3">
+        <h1 class="sh-h1 truncate">{{ title }}</h1>
         <p v-if="subtitle" class="mt-1 truncate text-[0.8125rem]" :style="{ color: 'var(--text-muted)' }">{{ subtitle }}</p>
+      </div>
+      <!-- Вкладка-витрина без крупного заголовка: действие справа держится
+           своим слоем, у витрины свой герой. -->
+      <div
+        v-else
+        class="pointer-events-none absolute inset-x-0 top-0 z-10 flex justify-end pr-3 pt-[calc(env(safe-area-inset-top)+0.5rem)]"
+      >
+        <div class="pointer-events-auto flex min-h-[44px] items-center"><slot name="header-trailing" /></div>
       </div>
 
       <main :class="tabs.length ? 'px-5 pb-[calc(7rem+env(safe-area-inset-bottom))]' : 'pb-[calc(2rem+env(safe-area-inset-bottom))]'">
         <slot />
       </main>
+    </div>
+
+    <!-- Стеклянная капсула при прокрутке — приём главной и Ультры: blur 16,
+         стекло холста, свет по верхней кромке, тень под ней. -->
+    <div
+      class="sh-pill"
+      :class="{ on: collapsed }"
+      :aria-hidden="collapsed ? undefined : 'true'"
+      :inert="collapsed ? undefined : true"
+    >
+      <button
+        v-if="back"
+        type="button"
+        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full active:opacity-70"
+        :style="{ color: 'var(--action-text)' }"
+        aria-label="Назад, к «Заряду»"
+        @click="emit('back')"
+      >
+        <svg viewBox="0 0 20 20" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 4 6 10l6 6" />
+        </svg>
+      </button>
+      <BrandMark v-else state="head" :size="30" class="shrink-0" />
+      <span data-test="nav-compact-title" class="min-w-0 flex-1 truncate text-[1rem] font-bold tracking-[-0.01em]">{{ title }}</span>
+      <div class="flex shrink-0 items-center"><slot name="header-trailing" /></div>
     </div>
 
     <!-- Подложка: холст набирает плотность к нижнему краю, чтобы содержимое
@@ -163,3 +193,52 @@ const activeIcon = () => (props.tabs.find((t) => t.id === props.active) || {}).i
     </div>
   </div>
 </template>
+
+<style scoped>
+/* Связка — как на главной (`LandingHeader.vue`, `.lk-word`), на ступень
+   мельче: внутри она подпись места, а не первый экран. */
+.sh-word {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--text);
+}
+.sh-mark { flex: 0 0 auto; box-shadow: var(--card-shadow-sm); }
+
+/* Заголовок раздела — плотный жирный, как заголовки /join. */
+.sh-h1 {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+  font-size: 2.125rem;
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.sh-pill {
+  position: absolute;
+  z-index: 35;
+  top: calc(env(safe-area-inset-top) + 8px);
+  left: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 6px 6px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--nav-line);
+  background: color-mix(in srgb, var(--nav-surface) 74%, transparent);
+  -webkit-backdrop-filter: blur(16px) saturate(170%);
+          backdrop-filter: blur(16px) saturate(170%);
+  box-shadow: inset 0 1px 0 var(--rim-glow, transparent), var(--card-shadow-float, none);
+  /* Уезжает за край с запасом на тень: плавающая тень выходит вниз на
+     сорок с лишним пикселей и иначе оставалась бы полосой под чёлкой. */
+  transform: translateY(calc(-100% - 64px));
+  pointer-events: none;
+  transition: transform 0.42s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.sh-pill.on { transform: none; pointer-events: auto; }
+@media (prefers-reduced-motion: reduce) { .sh-pill { transition: none; } }
+</style>

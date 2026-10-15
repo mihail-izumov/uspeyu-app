@@ -126,8 +126,7 @@ const lastDrawAge = computed(() => ageDays(props.data.last_draw))
   <div class="flex flex-col gap-5">
     <!-- ═══ КОЛЬЦО ═══ -->
     <section
-      class="kh-fade-in rounded-[20px] border px-5 pb-6 pt-7"
-      :style="{ background: 'var(--surface)', borderColor: 'var(--rim)', boxShadow: 'var(--card-shadow)' }"
+      class="kh-fade-in rounded-[20px] kh-card px-5 pb-6 pt-7"
     >
       <ChargeDial
         :value="charge.value"
@@ -157,8 +156,7 @@ const lastDrawAge = computed(() => ageDays(props.data.last_draw))
       <button
         v-if="charge.mode !== 'blind'"
         type="button"
-        class="mx-auto mt-4 flex min-h-[44px] items-center gap-1.5 rounded-full px-4 text-[0.875rem] active:opacity-60"
-        :style="{ color: 'var(--action-text)' }"
+        class="kh-btn kh-btn-quiet mx-auto mt-4 !min-h-[40px] !w-auto px-5 !text-[0.8125rem]"
         @click="breakdownOpen = true"
       >
         Из чего сложился
@@ -173,10 +171,10 @@ const lastDrawAge = computed(() => ageDays(props.data.last_draw))
          хватает, в порядке того, сколько веса это вернёт в расчёт. -->
     <section
       v-if="charge.mode === 'blind'"
-      class="rounded-[20px] border px-5 py-5"
-      :style="{ background: 'var(--sig-unknown-fill)', borderColor: 'var(--sig-unknown)' }"
+      class="rounded-[20px] px-5 py-5 kh-solid kh-rim"
+      :style="{ background: 'var(--sig-unknown-fill)' }"
     >
-      <h2 class="font-brand text-[1.0625rem] font-semibold" :style="{ color: 'var(--sig-unknown-ink)' }">
+      <h2 class="kh-title" :style="{ color: 'var(--sig-unknown-ink)' }">
         Считать нечем
       </h2>
       <p class="kh-balance mt-1.5 text-[0.875rem] leading-relaxed" :style="{ color: 'var(--sig-unknown-ink)' }">
@@ -209,8 +207,8 @@ const lastDrawAge = computed(() => ageDays(props.data.last_draw))
          не говорят, что внутри. Разница видна на разделах, которые
          открывают редко. -->
     <section>
-      <h2 class="mb-2 font-label text-[0.75rem] uppercase tracking-[0.14em]"
-          :style="{ color: 'var(--text-muted)' }">Разделы</h2>
+      <h2 class="mb-2 kh-eyebrow"
+         >Разделы</h2>
 
       <!-- ⛔ «Риски» — ЭКРАН, а не ссылка на apps/risk/health-risk.html.
            Тот файл открытый, и в публичном репозитории он означал бы
@@ -222,12 +220,11 @@ const lastDrawAge = computed(() => ageDays(props.data.last_draw))
           v-for="t in TILES"
           :key="t.id"
           type="button"
-          class="flex aspect-square flex-col justify-between rounded-[18px] border p-4 text-left active:opacity-90"
-          :style="{ background: 'var(--surface)', borderColor: 'var(--rim)', boxShadow: 'var(--card-shadow)' }"
+          class="flex aspect-square flex-col justify-between rounded-[18px] kh-card p-4 text-left active:opacity-90"
           @click="emit('go', t.id)"
         >
           <span class="flex w-full items-start justify-between gap-2">
-            <span class="text-[0.9375rem] font-semibold leading-snug">{{ t.label }}</span>
+            <span class="text-[0.9375rem] font-bold leading-snug tracking-[-0.01em]">{{ t.label }}</span>
             <!-- Точка состояния. Цвет здесь не единственный носитель: под
                  числом стоит слово, называющее то же самое. -->
             <span
@@ -239,7 +236,7 @@ const lastDrawAge = computed(() => ageDays(props.data.last_draw))
 
           <span class="block">
             <span
-              class="kh-digit block text-[2rem] font-bold tabular-nums leading-none"
+              class="kh-digit block font-brand text-[2rem] font-bold tabular-nums leading-none tracking-[-0.02em]"
               :style="{ color: tone(t.level).ink }"
             >{{ t.value }}</span>
             <span class="mt-1.5 block text-[0.8125rem] leading-snug" :style="{ color: 'var(--text-secondary)' }">
@@ -257,10 +254,9 @@ const lastDrawAge = computed(() => ageDays(props.data.last_draw))
     <button
       v-if="!weekFilled"
       type="button"
-      class="flex w-full items-center gap-4 rounded-[20px] border px-5 py-4 text-left active:opacity-90"
-      :style="isSurveyDue
-        ? { background: 'var(--action)', borderColor: 'var(--action)', color: 'var(--action-ink)' }
-        : { background: 'var(--surface)', borderColor: 'var(--rim)', boxShadow: 'var(--card-shadow)' }"
+      class="flex w-full items-center gap-4 rounded-[20px] px-5 py-4 text-left active:opacity-90"
+      :class="isSurveyDue ? 'kh-btn-primary kh-rim' : 'kh-card'"
+      :style="isSurveyDue ? { color: 'var(--action-ink)' } : {}"
       @click="emit('open-survey')"
     >
       <svg viewBox="0 0 24 24" class="h-6 w-6 shrink-0" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -269,12 +265,12 @@ const lastDrawAge = computed(() => ageDays(props.data.last_draw))
         <path d="M8.5 14.5l2 2 4-4.5" />
       </svg>
       <span class="min-w-0 flex-1">
-        <span class="block font-brand text-[1.0625rem] font-semibold">
+        <span class="block kh-title">
           {{ isSurveyDue ? 'Воскресная отметка' : 'Неделя не отмечена' }}
         </span>
         <span
           class="mt-0.5 block text-[0.8125rem] leading-snug"
-          :style="{ color: isSurveyDue ? 'var(--ink-on-color-muted)' : 'var(--text-muted)' }"
+          :style="{ color: isSurveyDue ? 'var(--ink-on-action-muted)' : 'var(--text-muted)' }"
         >
           Тридцать пунктов из девяноста — симптомы и экспозиция. Без отметки они не считаются.
         </span>
@@ -286,15 +282,14 @@ const lastDrawAge = computed(() => ageDays(props.data.last_draw))
 
     <!-- ═══ ЧТО СЕЙЧАС ОТКРЫТО ═══ -->
     <section v-if="openAlerts.length">
-      <h2 class="mb-2 font-label text-[0.75rem] uppercase tracking-[0.14em]" :style="{ color: 'var(--text-muted)' }">
+      <h2 class="mb-2 kh-eyebrow">
         Открытые тревоги
       </h2>
       <div class="flex flex-col gap-2">
         <article
           v-for="a in openAlerts"
           :key="a.code"
-          class="rounded-[16px] border px-4 py-3.5"
-          :style="{ background: 'var(--surface)', borderColor: 'var(--rim)' }"
+          class="rounded-[16px] kh-card px-4 py-3.5"
         >
           <div class="flex items-center gap-2">
             <span class="font-mono text-[0.75rem]" :style="{ color: 'var(--text-muted)' }">{{ a.code }}</span>
@@ -312,8 +307,8 @@ const lastDrawAge = computed(() => ageDays(props.data.last_draw))
          Не мелкий шрифт в подвале, а карточка на главном экране. Каждый
          экран приложения обязан помнить, чем оно не является. -->
     <section
-      class="rounded-[16px] border px-4 py-3.5"
-      :style="{ background: 'var(--surface-2)', borderColor: 'var(--line)' }"
+      class="rounded-[16px] px-4 py-3.5"
+      :style="{ background: 'var(--surface-2)' }"
     >
       <p class="text-[0.8125rem] leading-relaxed" :style="{ color: 'var(--text-secondary)' }">
         <strong :style="{ color: 'var(--text)' }">Контур не назначает и не отменяет препараты</strong>
@@ -338,8 +333,7 @@ const lastDrawAge = computed(() => ageDays(props.data.last_draw))
         <li
           v-for="p in counted"
           :key="p.key"
-          class="rounded-[14px] border px-4 py-3"
-          :style="{ background: 'var(--surface)', borderColor: 'var(--rim)' }"
+          class="rounded-[14px] kh-card px-4 py-3"
         >
           <div class="flex items-baseline justify-between gap-3">
             <span class="text-[0.9375rem] font-medium">{{ p.full }}</span>
@@ -371,7 +365,7 @@ const lastDrawAge = computed(() => ageDays(props.data.last_draw))
       </ul>
 
       <template v-if="skipped.length">
-        <h3 class="mb-2 mt-6 font-label text-[0.75rem] uppercase tracking-[0.14em]" :style="{ color: 'var(--text-muted)' }">
+        <h3 class="mb-2 mt-6 kh-eyebrow">
           Не участвует в расчёте
         </h3>
         <ul class="flex flex-col gap-1.5">

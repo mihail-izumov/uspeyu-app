@@ -207,12 +207,11 @@ function tagTitle(tag) {
   <div class="flex flex-col gap-4">
     <!-- ═══ ШАПКА СОСТОЯНИЯ ═══ -->
     <section
-      class="rounded-[20px] border px-5 py-4"
-      :style="{ background: 'var(--surface)', borderColor: 'var(--rim)', boxShadow: 'var(--card-shadow)' }"
+      class="rounded-[20px] kh-card px-5 py-4"
     >
       <div class="flex items-baseline justify-between gap-3">
         <div>
-          <p class="font-brand text-[1.0625rem] font-semibold">Свежесть картины</p>
+          <p class="kh-title">Свежесть картины</p>
           <p class="mt-0.5 text-[0.8125rem]" :style="{ color: 'var(--text-muted)' }">
             Последний забор {{ fmtDate(data.last_draw) }}
           </p>
@@ -238,20 +237,19 @@ function tagTitle(tag) {
 
     <!-- ═══ К ВИЗИТУ (SYS-8) ═══ -->
     <section v-if="visits.length">
-      <h2 class="mb-2 font-label text-[0.75rem] uppercase tracking-[0.14em]" :style="{ color: 'var(--text-muted)' }">
+      <h2 class="mb-2 kh-eyebrow">
         К визиту
       </h2>
-      <div class="flex flex-col gap-1.5">
+      <div class="kh-list rounded-[18px]">
         <button
           v-for="v in visits"
           :key="v.doctor"
           type="button"
-          class="flex w-full items-center gap-3 rounded-[14px] border px-4 py-3 text-left active:opacity-80"
-          :style="{ background: 'var(--surface)', borderColor: 'var(--rim)' }"
+          class="flex w-full items-center gap-3 px-4 py-3 text-left"
           @click="visit = v"
         >
           <div class="min-w-0 flex-1">
-            <p class="text-[0.9375rem] font-medium">{{ cap(v.doctor) }}</p>
+            <p class="text-[0.9375rem] font-semibold">{{ cap(v.doctor) }}</p>
             <p class="mt-0.5 text-[0.75rem]" :style="{ color: 'var(--text-muted)' }">
               <template v-if="v.questions.length">вопросов: {{ v.questions.length }}</template>
               <template v-if="v.questions.length && v.alerts.length"> · </template>
@@ -259,7 +257,7 @@ function tagTitle(tag) {
               <template v-if="v.attention.length"> · показать: {{ v.attention.length }}</template>
             </p>
           </div>
-          <span aria-hidden="true" :style="{ color: 'var(--text-muted)' }">›</span>
+          <svg viewBox="0 0 16 16" class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" :style="{ color: 'var(--text-muted)' }" aria-hidden="true"><path d="M6 3l5 5-5 5" /></svg>
         </button>
       </div>
     </section>
@@ -273,15 +271,14 @@ function tagTitle(tag) {
     >
       <template v-if="visit">
         <template v-if="visit.questions.length">
-          <h3 class="mb-2 font-label text-[0.75rem] uppercase tracking-[0.14em]" :style="{ color: 'var(--text-muted)' }">
+          <h3 class="mb-2 kh-eyebrow">
             Спросить
           </h3>
-          <ol class="flex flex-col gap-2">
+          <ol class="kh-list rounded-[16px]">
             <li
               v-for="(code, i) in visit.questions"
               :key="code"
-              class="rounded-[14px] border px-4 py-3"
-              :style="{ background: 'var(--surface)', borderColor: 'var(--rim)' }"
+              class="px-4 py-3"
             >
               <div class="flex items-center gap-2 text-[0.75rem]" :style="{ color: 'var(--text-muted)' }">
                 <span class="font-mono">{{ i + 1 }}. {{ code }}</span>
@@ -294,15 +291,15 @@ function tagTitle(tag) {
         </template>
 
         <template v-if="visit.alerts.length">
-          <h3 class="mb-2 mt-6 font-label text-[0.75rem] uppercase tracking-[0.14em]" :style="{ color: 'var(--text-muted)' }">
+          <h3 class="mb-2 mt-6 kh-eyebrow">
             Тревоги контура — адресованы этому врачу
           </h3>
           <div class="flex flex-col gap-2">
             <article
               v-for="code in visit.alerts"
               :key="code"
-              class="rounded-[14px] border px-4 py-3"
-              :style="{ background: 'var(--sig-alarm-fill)', borderColor: 'var(--sig-alarm)' }"
+              class="rounded-[14px] px-4 py-3 kh-solid kh-rim"
+              :style="{ background: 'var(--sig-alarm-fill)' }"
             >
               <span class="font-mono text-[0.75rem]" :style="{ color: 'var(--sig-alarm-ink)' }">{{ code }}</span>
               <p class="mt-1 text-[0.875rem] font-medium leading-snug" :style="{ color: 'var(--sig-alarm-ink)' }">
@@ -313,15 +310,14 @@ function tagTitle(tag) {
         </template>
 
         <template v-if="visit.attention.length">
-          <h3 class="mb-2 mt-6 font-label text-[0.75rem] uppercase tracking-[0.14em]" :style="{ color: 'var(--text-muted)' }">
+          <h3 class="mb-2 mt-6 kh-eyebrow">
             Показать: что вне цели или не измерялось
           </h3>
-          <ul class="flex flex-col gap-1.5">
+          <ul class="kh-list rounded-[16px]">
             <li
               v-for="a in visit.attention"
               :key="a.key"
-              class="flex items-baseline justify-between gap-3 rounded-[12px] border px-4 py-2.5"
-              :style="{ background: 'var(--surface)', borderColor: 'var(--rim)' }"
+              class="flex items-baseline justify-between gap-3 px-4 py-2.5"
             >
               <span class="min-w-0 flex-1 truncate text-[0.875rem]">{{ a.name }}</span>
               <span class="shrink-0 text-[0.75rem]" :style="{ color: 'var(--text-muted)' }">
@@ -331,18 +327,17 @@ function tagTitle(tag) {
           </ul>
         </template>
 
-        <h3 class="mb-2 mt-6 font-label text-[0.75rem] uppercase tracking-[0.14em]" :style="{ color: 'var(--text-muted)' }">
+        <h3 class="mb-2 mt-6 kh-eyebrow">
           Принимаю сейчас — список целиком
         </h3>
         <p class="mb-2 text-[0.75rem]" :style="{ color: 'var(--text-muted)' }">
           Полный список, не по памяти: врач, слышащий часть схемы, решает по неверным вводным.
         </p>
-        <ul class="flex flex-col gap-1">
+        <ul class="kh-list rounded-[16px]">
           <li
             v-for="m in allMeds"
             :key="m.name"
-            class="rounded-[12px] border px-4 py-2.5 text-[0.875rem]"
-            :style="{ background: 'var(--surface)', borderColor: 'var(--rim)' }"
+            class="px-4 py-2.5 text-[0.875rem]"
           >
             {{ m.name }}
             <span class="text-[0.75rem]" :style="{ color: 'var(--text-muted)' }"> · {{ m.group }}<template v-if="m.regimen"> · {{ m.regimen }}</template></span>
@@ -356,15 +351,16 @@ function tagTitle(tag) {
     </BottomSheet>
 
     <!-- ═══ ВКЛАДКИ ═══ -->
-    <div class="flex gap-1 rounded-full p-1" :style="{ background: 'var(--surface-2)' }">
+    <!-- Д-70: пять подразделов — чипами, как вкладки обязательства на /join;
+         выбранный вывернут цветом текста. В сегментный ряд пять подписей не
+         помещались: «Препараты» и «Диагнозы» слипались в одно слово. -->
+    <div class="flex flex-wrap gap-2 pt-1">
       <button
         v-for="t in TABS"
         :key="t.id"
         type="button"
-        class="min-h-[40px] flex-1 rounded-full text-[0.8125rem] active:opacity-70"
-        :style="tab === t.id
-          ? { background: 'var(--surface)', color: 'var(--text)', boxShadow: 'var(--card-shadow)' }
-          : { color: 'var(--text-muted)' }"
+        class="kh-chip !min-h-[40px] !px-4"
+        :aria-pressed="tab === t.id"
         @click="tab = t.id"
       >{{ t.label }}</button>
     </div>
@@ -373,7 +369,7 @@ function tagTitle(tag) {
     <template v-if="tab === 'gaps'">
       <!-- ⚠⚠ Худший вид пробела идёт первым. -->
       <section v-if="therapyGaps.length">
-        <h2 class="mb-2 font-label text-[0.75rem] uppercase tracking-[0.14em]" :style="{ color: 'var(--sig-alarm)' }">
+        <h2 class="mb-2 kh-eyebrow" :style="{ color: 'var(--sig-alarm)' }">
           Пробелы на фоне терапии
         </h2>
         <p class="kh-balance mb-2.5 text-[0.8125rem] leading-relaxed" :style="{ color: 'var(--text-secondary)' }">
@@ -383,8 +379,8 @@ function tagTitle(tag) {
           <article
             v-for="g in therapyGaps"
             :key="g.med"
-            class="rounded-[16px] border px-4 py-3.5"
-            :style="{ background: 'var(--sig-alarm-fill)', borderColor: 'var(--sig-alarm)' }"
+            class="rounded-[16px] px-4 py-3.5 kh-solid kh-rim"
+            :style="{ background: 'var(--sig-alarm-fill)' }"
           >
             <div class="flex items-baseline justify-between gap-3">
               <p class="font-medium" :style="{ color: 'var(--sig-alarm-ink)' }">{{ g.med }}</p>
@@ -403,15 +399,15 @@ function tagTitle(tag) {
       </section>
 
       <section v-if="blocked.length">
-        <h2 class="mb-2 mt-2 font-label text-[0.75rem] uppercase tracking-[0.14em]" :style="{ color: 'var(--sig-blocked)' }">
+        <h2 class="mb-2 mt-2 kh-eyebrow" :style="{ color: 'var(--sig-blocked)' }">
           Сейчас измерять нельзя
         </h2>
         <div class="flex flex-col gap-2">
           <article
             v-for="m in blocked"
             :key="m.key"
-            class="rounded-[16px] border px-4 py-3.5"
-            :style="{ background: 'var(--sig-blocked-fill)', borderColor: 'var(--sig-blocked)' }"
+            class="rounded-[16px] px-4 py-3.5 kh-solid kh-rim"
+            :style="{ background: 'var(--sig-blocked-fill)' }"
           >
             <p class="font-medium" :style="{ color: 'var(--sig-blocked-ink)' }">{{ m.name }}</p>
             <p class="mt-1 text-[0.8125rem] leading-snug" :style="{ color: 'var(--text-secondary)' }">
@@ -426,15 +422,14 @@ function tagTitle(tag) {
       </section>
 
       <section v-if="gaps.length">
-        <h2 class="mb-2 mt-2 font-label text-[0.75rem] uppercase tracking-[0.14em]" :style="{ color: 'var(--text-muted)' }">
+        <h2 class="mb-2 mt-2 kh-eyebrow">
           Ни одной точки за всё время
         </h2>
-        <ul class="flex flex-col gap-1.5">
+        <ul class="kh-list rounded-[18px]">
           <li
             v-for="m in gaps"
             :key="m.key"
-            class="flex items-center gap-3 rounded-[14px] border px-4 py-3"
-            :style="{ background: 'var(--surface)', borderColor: 'var(--rim)' }"
+            class="flex items-center gap-3 px-4 py-3"
           >
             <div class="min-w-0 flex-1">
               <p class="truncate text-[0.9375rem]">{{ m.name }}</p>
@@ -448,15 +443,14 @@ function tagTitle(tag) {
       </section>
 
       <section v-if="stale.length">
-        <h2 class="mb-2 mt-2 font-label text-[0.75rem] uppercase tracking-[0.14em]" :style="{ color: 'var(--text-muted)' }">
+        <h2 class="mb-2 mt-2 kh-eyebrow">
           Пора пересдать
         </h2>
-        <ul class="flex flex-col gap-1.5">
+        <ul class="kh-list rounded-[18px]">
           <li
             v-for="m in stale"
             :key="m.key"
-            class="flex items-center gap-3 rounded-[14px] border px-4 py-3"
-            :style="{ background: 'var(--surface)', borderColor: 'var(--rim)' }"
+            class="flex items-center gap-3 px-4 py-3"
           >
             <div class="min-w-0 flex-1">
               <p class="truncate text-[0.9375rem]">{{ m.name }}</p>
@@ -475,17 +469,16 @@ function tagTitle(tag) {
       <p class="kh-balance text-[0.8125rem] leading-relaxed" :style="{ color: 'var(--text-muted)' }">
         [ВАЖНО] Контур не назначает и не отменяет. Этот список — память, а не рецепт.
       </p>
-      <div class="flex flex-col gap-2">
+      <div class="kh-list rounded-[18px]">
         <button
           v-for="m in data.meds"
           :key="m.name"
           type="button"
-          class="rounded-[16px] border px-4 py-3.5 text-left active:opacity-80"
-          :style="{ background: 'var(--surface)', borderColor: 'var(--rim)' }"
+          class="px-4 py-3.5 text-left"
           @click="medDetail = m"
         >
           <div class="flex items-baseline justify-between gap-3">
-            <p class="font-medium leading-snug">{{ m.name }}</p>
+            <p class="font-semibold leading-snug">{{ m.name }}</p>
             <span class="shrink-0 text-[0.6875rem] uppercase tracking-[0.08em]" :style="{ color: 'var(--text-muted)' }">
               {{ m.group === 'постоянно' ? 'постоянно' : 'курсом' }}
             </span>
@@ -506,15 +499,15 @@ function tagTitle(tag) {
         Только диагнозы из документов с подписью врача. Контур диагнозов не ставит.
       </p>
       <section v-if="orphanConditions.length">
-        <h2 class="mb-2 font-label text-[0.75rem] uppercase tracking-[0.14em]" :style="{ color: 'var(--sig-alarm)' }">
+        <h2 class="mb-2 kh-eyebrow" :style="{ color: 'var(--sig-alarm)' }">
           Никем не ведётся
         </h2>
         <div class="flex flex-col gap-2">
           <article
             v-for="c in orphanConditions"
             :key="c.name"
-            class="rounded-[16px] border px-4 py-3.5"
-            :style="{ background: 'var(--sig-alarm-fill)', borderColor: 'var(--sig-alarm)' }"
+            class="rounded-[16px] px-4 py-3.5 kh-solid kh-rim"
+            :style="{ background: 'var(--sig-alarm-fill)' }"
           >
             <p class="font-medium leading-snug" :style="{ color: 'var(--sig-alarm-ink)' }">{{ c.name }}</p>
             <p class="mt-1 text-[0.8125rem] leading-snug" :style="{ color: 'var(--text-secondary)' }">{{ c.led_by }}</p>
@@ -522,15 +515,14 @@ function tagTitle(tag) {
         </div>
       </section>
       <section>
-        <h2 class="mb-2 mt-2 font-label text-[0.75rem] uppercase tracking-[0.14em]" :style="{ color: 'var(--text-muted)' }">
+        <h2 class="mb-2 mt-2 kh-eyebrow">
           Активные диагнозы
         </h2>
-        <ul class="flex flex-col gap-1.5">
+        <ul class="kh-list rounded-[18px]">
           <li
             v-for="c in data.conditions"
             :key="c.name"
-            class="rounded-[14px] border px-4 py-3"
-            :style="{ background: 'var(--surface)', borderColor: 'var(--rim)' }"
+            class="px-4 py-3"
           >
             <p class="text-[0.9375rem] leading-snug">
               <span v-if="c.flag" :style="{ color: 'var(--sig-alarm)' }">{{ c.flag }} </span>{{ c.name }}
@@ -552,15 +544,13 @@ function tagTitle(tag) {
     <template v-else-if="tab === 'tasks'">
       <!-- фильтр по рядам; «Визиты» стоит первым после «Все»:
            у визитов есть срок, который закрывается сам собой -->
-      <div class="kh-scroll -mx-5 flex gap-1.5 overflow-x-auto px-5 pb-0.5">
+      <div class="kh-scroll -mx-5 flex gap-2 overflow-x-auto px-5 pb-2 pt-0.5">
         <button
           v-for="f in TASK_ROW_FILTERS"
           :key="f.id"
           type="button"
-          class="min-h-[36px] shrink-0 rounded-full border px-3.5 text-[0.8125rem] active:opacity-70"
-          :style="taskRow === f.id
-            ? { background: 'var(--action)', color: 'var(--action-ink)', borderColor: 'var(--action)' }
-            : { background: 'var(--surface)', borderColor: 'var(--rim)', color: 'var(--text-secondary)' }"
+          class="kh-chip kh-chip-sm shrink-0"
+          :aria-pressed="taskRow === f.id"
           @click="taskRow = f.id"
         >{{ f.label }}</button>
       </div>
@@ -586,10 +576,10 @@ function tagTitle(tag) {
               :style="{ color: 'var(--text-muted)' }"
               aria-hidden="true"
             ><path d="M6 3l5 5-5 5" /></svg>
-            <span class="text-[1rem] font-semibold">{{ g.mark }} {{ g.label }}</span>
+            <span class="text-[1rem] font-bold tracking-[-0.01em]">{{ g.mark }} {{ g.label }}</span>
             <span
-              class="inline-flex h-6 min-w-[1.5rem] items-center justify-center rounded-full px-1.5 text-[0.8125rem] font-medium leading-none"
-              :style="{ background: 'var(--line)', color: 'var(--text-secondary)' }"
+              class="inline-flex h-6 min-w-[1.5rem] items-center justify-center rounded-full px-1.5 text-[0.8125rem] font-semibold leading-none"
+              :style="{ background: 'color-mix(in srgb, var(--text) 8%, transparent)', color: 'var(--text-secondary)' }"
             >{{ g.items.length }}</span>
           </button>
 
@@ -598,14 +588,14 @@ function tagTitle(tag) {
               v-for="t in g.items"
               :key="t.code"
               type="button"
-              class="flex w-full flex-col gap-2 rounded-[16px] border px-4 py-3.5 text-left active:opacity-70"
-              :style="{ background: 'var(--surface)', borderColor: t.overdue ? 'var(--sig-alarm)' : 'var(--rim)' }"
+              class="kh-card flex w-full flex-col gap-2 rounded-[16px] px-4 py-3.5 text-left active:opacity-70"
+              :style="t.overdue ? { background: 'var(--sig-alarm-fill)' } : {}"
               @click="taskDetail = t"
             >
               <div class="flex flex-wrap items-center gap-1.5">
                 <span
-                  class="inline-flex items-center rounded-full px-2 py-0.5 text-[0.75rem] font-medium leading-tight"
-                  :style="{ background: 'var(--line)', color: 'var(--text-secondary)' }"
+                  class="inline-flex items-center rounded-full px-2 py-0.5 text-[0.75rem] font-semibold leading-tight"
+                  :style="{ background: 'var(--surface-3)', color: 'var(--text-secondary)' }"
                 >{{ t.row_label }}</span>
                 <span class="font-mono text-[0.75rem]" :style="{ color: 'var(--text-muted)' }">{{ t.code }}</span>
               </div>
@@ -622,8 +612,8 @@ function tagTitle(tag) {
                 <span
                   v-for="l in t.links"
                   :key="l"
-                  class="inline-flex items-center rounded-full border px-1.5 py-0.5 font-mono text-[0.6875rem] leading-tight"
-                  :style="{ borderColor: 'var(--rim)', color: 'var(--text-muted)' }"
+                  class="inline-flex items-center rounded-full px-1.5 py-0.5 font-mono text-[0.6875rem] leading-tight"
+                  :style="{ background: 'var(--surface-3)', color: 'var(--text-muted)' }"
                 >{{ l }}</span>
               </div>
             </button>
@@ -651,13 +641,11 @@ function tagTitle(tag) {
       </section>
 
       <!-- фильтр по закрытому словарю тегов -->
-      <section v-if="answers.tags.length" class="-mx-1 flex flex-wrap gap-1.5 px-1">
+      <section v-if="answers.tags.length" class="-mx-1 flex flex-wrap gap-2 px-1">
         <button
           type="button"
-          class="min-h-[34px] rounded-full border px-3 text-[0.8125rem] active:opacity-70"
-          :style="answerTag === ''
-            ? { background: 'var(--nav-accent)', color: 'var(--nav-accent-ink)', borderColor: 'transparent' }
-            : { background: 'var(--surface)', color: 'var(--text-muted)', borderColor: 'var(--rim)' }"
+          class="kh-chip kh-chip-sm"
+          :aria-pressed="answerTag === ''"
           @click="answerTag = ''"
         >Все · {{ answers.entries.length }}</button>
         <button
@@ -665,10 +653,8 @@ function tagTitle(tag) {
           :key="t.tag"
           type="button"
           :title="t.title"
-          class="min-h-[34px] rounded-full border px-3 text-[0.8125rem] active:opacity-70"
-          :style="answerTag === t.tag
-            ? { background: 'var(--nav-accent)', color: 'var(--nav-accent-ink)', borderColor: 'transparent' }
-            : { background: 'var(--surface)', color: 'var(--text-muted)', borderColor: 'var(--rim)' }"
+          class="kh-chip kh-chip-sm"
+          :aria-pressed="answerTag === t.tag"
           @click="answerTag = answerTag === t.tag ? '' : t.tag"
         >{{ t.tag }} · {{ t.count }}</button>
       </section>
@@ -677,13 +663,12 @@ function tagTitle(tag) {
         <p class="text-[0.8125rem]" :style="{ color: 'var(--text-muted)' }">{{ tagTitle(answerTag) }}</p>
       </section>
 
-      <section class="flex flex-col gap-1.5">
+      <section v-if="answersFiltered.length" class="kh-list rounded-[18px]">
         <button
           v-for="a in answersFiltered"
           :key="a.id"
           type="button"
-          class="w-full rounded-[14px] border px-4 py-3 text-left active:opacity-80"
-          :style="{ background: 'var(--surface)', borderColor: 'var(--rim)' }"
+          class="px-4 py-3 text-left"
           @click="openAnswer = a"
         >
           <div class="flex items-center gap-2 text-[0.75rem]" :style="{ color: 'var(--text-muted)' }">
@@ -692,7 +677,7 @@ function tagTitle(tag) {
             <span>{{ fmtDate(a.date) }}</span>
             <span v-if="a.stale" class="ml-auto">устарел</span>
           </div>
-          <p class="mt-1 text-[0.9375rem] font-medium leading-snug">{{ a.title }}</p>
+          <p class="mt-1 text-[0.9375rem] font-semibold leading-snug">{{ a.title }}</p>
           <p
             v-if="a.question && a.question !== '—'"
             class="mt-1 line-clamp-2 text-[0.8125rem] leading-snug"
@@ -700,12 +685,12 @@ function tagTitle(tag) {
           >«{{ a.question }}»</p>
           <p class="mt-1 text-[0.75rem]" :style="{ color: 'var(--text-muted)' }">{{ a.tags.join(' · ') }}</p>
         </button>
-        <p
-          v-if="!answersFiltered.length"
-          class="rounded-[14px] px-4 py-3 text-[0.875rem]"
-          :style="{ background: 'var(--surface-2)', color: 'var(--text-muted)' }"
-        >По этому тегу записей пока нет.</p>
       </section>
+      <p
+        v-if="!answersFiltered.length"
+        class="rounded-[14px] px-4 py-3 text-[0.875rem]"
+        :style="{ background: 'var(--surface-2)', color: 'var(--text-muted)' }"
+      >По этому тегу записей пока нет.</p>
     </template>
 
     <!-- ═══ ЧТЕНИЕ ОДНОГО ОТВЕТА ═══ -->
@@ -724,7 +709,7 @@ function tagTitle(tag) {
           class="mb-4 rounded-[14px] px-4 py-3 text-[0.875rem] leading-relaxed"
           :style="{ background: 'var(--surface-2)', color: 'var(--text-muted)' }"
         >
-          <span class="font-label text-[0.6875rem] uppercase tracking-[0.12em]">Вопрос · {{ fmtDate(openAnswer.asked) }}</span><br>
+          <span class="kh-eyebrow">Вопрос · {{ fmtDate(openAnswer.asked) }}</span><br>
           «{{ openAnswer.question }}»
         </p>
         <ReadingBlocks :sections="openAnswerSections" />
@@ -746,11 +731,11 @@ function tagTitle(tag) {
         <p class="text-[1rem] font-medium leading-snug">{{ taskDetail.what }}</p>
         <dl class="mt-4 flex flex-col gap-3">
           <div>
-            <dt class="font-label text-[0.75rem] uppercase tracking-[0.12em]" :style="{ color: 'var(--text-muted)' }">Статус</dt>
+            <dt class="kh-eyebrow">Статус</dt>
             <dd class="mt-0.5 text-[0.9375rem]">{{ taskDetail.status }}</dd>
           </div>
           <div v-if="taskDetail.due">
-            <dt class="font-label text-[0.75rem] uppercase tracking-[0.12em]" :style="{ color: 'var(--text-muted)' }">Срок</dt>
+            <dt class="kh-eyebrow">Срок</dt>
             <dd class="mt-0.5 text-[0.9375rem]" :style="{ color: taskDetail.overdue ? 'var(--sig-alarm)' : 'var(--text)' }">
               {{ taskDetail.due }}<template v-if="taskDetail.overdue"> · срок вышел</template>
             </dd>
@@ -759,11 +744,11 @@ function tagTitle(tag) {
             <!-- ⛔ «Зачем» — обязательное поле реестра: задача, для которой
                  нельзя назвать закрываемый пробел или риск, в реестр не
                  попадает (Д-12). Поэтому оно здесь, а не спрятано. -->
-            <dt class="font-label text-[0.75rem] uppercase tracking-[0.12em]" :style="{ color: 'var(--text-muted)' }">Зачем</dt>
+            <dt class="kh-eyebrow">Зачем</dt>
             <dd class="mt-0.5 text-[0.9375rem] leading-snug">{{ taskDetail.why }}</dd>
           </div>
           <div v-if="taskDetail.linked">
-            <dt class="font-label text-[0.75rem] uppercase tracking-[0.12em]" :style="{ color: 'var(--text-muted)' }">Связано</dt>
+            <dt class="kh-eyebrow">Связано</dt>
             <dd class="mt-0.5 text-[0.9375rem] leading-snug">{{ taskDetail.linked }}</dd>
           </div>
         </dl>
@@ -784,19 +769,19 @@ function tagTitle(tag) {
       <template v-if="medDetail">
         <dl class="flex flex-col gap-3">
           <div v-if="medDetail.regimen">
-            <dt class="font-label text-[0.75rem] uppercase tracking-[0.12em]" :style="{ color: 'var(--text-muted)' }">Режим</dt>
+            <dt class="kh-eyebrow">Режим</dt>
             <dd class="mt-0.5 text-[0.9375rem] leading-snug">{{ medDetail.regimen }}</dd>
           </div>
           <div v-if="medDetail.since">
-            <dt class="font-label text-[0.75rem] uppercase tracking-[0.12em]" :style="{ color: 'var(--text-muted)' }">Принимается с</dt>
+            <dt class="kh-eyebrow">Принимается с</dt>
             <dd class="mt-0.5 text-[0.9375rem] leading-snug">{{ medDetail.since }}</dd>
           </div>
           <div v-if="medDetail.why">
-            <dt class="font-label text-[0.75rem] uppercase tracking-[0.12em]" :style="{ color: 'var(--text-muted)' }">Зачем</dt>
+            <dt class="kh-eyebrow">Зачем</dt>
             <dd class="mt-0.5 text-[0.9375rem] leading-snug">{{ medDetail.why }}</dd>
           </div>
           <div v-if="medDetail.prescriber">
-            <dt class="font-label text-[0.75rem] uppercase tracking-[0.12em]" :style="{ color: 'var(--text-muted)' }">Кто назначил</dt>
+            <dt class="kh-eyebrow">Кто назначил</dt>
             <dd class="mt-0.5 text-[0.9375rem] leading-snug">{{ medDetail.prescriber }}</dd>
           </div>
         </dl>

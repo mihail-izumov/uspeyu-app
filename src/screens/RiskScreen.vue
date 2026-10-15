@@ -112,8 +112,8 @@ const METH = [
 </script>
 
 <template>
-  <div v-if="!organs.length" class="rounded-[20px] border px-5 py-5"
-       :style="{ background: 'var(--surface)', borderColor: 'var(--rim)' }">
+  <div v-if="!organs.length" class="rounded-[20px] kh-card px-5 py-5"
+      >
     <p class="text-[0.875rem]" :style="{ color: 'var(--text-muted)' }">
       Прогон рисков ещё не собран. Данные готовит <code>python3 tools/run_all.py</code>.
     </p>
@@ -121,19 +121,18 @@ const METH = [
 
   <div v-else class="flex flex-col gap-5">
     <!-- ═══ СВОД ═══ -->
-    <section
-      class="rounded-[20px] border border-l-[4px] px-5 py-5"
-      :style="{ background: 'var(--surface)', borderColor: 'var(--rim)',
-                borderLeftColor: `var(--sig-${r.band === 'ok' ? 'ok' : r.band === 'warn' ? 'watch' : 'alarm'})`,
-                boxShadow: 'var(--card-shadow)' }"
-    >
+    <!-- Д-70: рамки нет — цвет свода несёт полоса внутри карточки, как у
+         плиток ниже, а не обводка по контуру (DESIGN-STANDARD §11). -->
+    <section class="kh-card relative overflow-hidden rounded-[20px] px-5 py-5">
+      <span class="absolute inset-y-0 left-0 w-[4px]" aria-hidden="true"
+            :style="{ background: `var(--sig-${r.band === 'ok' ? 'ok' : r.band === 'warn' ? 'watch' : 'alarm'})` }"></span>
       <div class="flex items-start justify-between gap-4">
         <div class="min-w-0">
-          <p class="text-[1.0625rem] font-semibold leading-snug">{{ r.headline }}</p>
+          <p class="kh-title">{{ r.headline }}</p>
           <p class="mt-1 text-[0.8125rem] leading-snug" :style="{ color: 'var(--text-muted)' }">{{ r.sub }}</p>
         </div>
         <div class="shrink-0 text-right">
-          <p class="font-mono text-[2.25rem] font-semibold leading-none tabular-nums"
+          <p class="font-brand text-[2.5rem] font-bold leading-none tabular-nums tracking-[-0.02em]"
              :style="{ color: `var(--sig-${r.band === 'ok' ? 'ok' : r.band === 'warn' ? 'watch' : 'alarm'})` }">
             {{ r.fullness }}
           </p>
@@ -148,23 +147,23 @@ const METH = [
     <!-- ═══ ПЛИТКИ ═══ -->
     <section class="grid grid-cols-2 gap-3">
       <div v-for="k in KPI" :key="k.t"
-           class="relative overflow-hidden rounded-[18px] border py-3 pl-4 pr-3"
-           :style="{ background: 'var(--surface)', borderColor: 'var(--rim)' }">
+           class="relative overflow-hidden rounded-[18px] kh-card py-3 pl-4 pr-3"
+          >
         <span class="absolute inset-y-0 left-0 w-[3px]" :style="{ background: `var(--sig-${k.c})` }"></span>
         <p class="text-[0.6875rem]" :style="{ color: 'var(--text-muted)' }">{{ k.t }}</p>
-        <p class="mt-1 font-mono text-[1.25rem] font-semibold tabular-nums">{{ k.v }}</p>
+        <p class="mt-1 font-brand text-[1.5rem] font-bold tabular-nums tracking-[-0.01em]">{{ k.v }}</p>
         <p class="mt-1 text-[0.6875rem] leading-snug" :style="{ color: 'var(--text-muted)' }">{{ k.s }}</p>
       </div>
     </section>
 
     <!-- ═══ СВЕТОФОР ОРГАНОВ ═══ -->
     <section>
-      <h2 class="mb-2 font-label text-[0.75rem] uppercase tracking-[0.14em]"
-          :style="{ color: 'var(--text-muted)' }">Светофор органов-мишеней</h2>
-      <div class="flex flex-col gap-3">
+      <h2 class="mb-2 kh-eyebrow"
+         >Светофор органов-мишеней</h2>
+      <div class="kh-list rounded-[18px]">
         <details v-for="o in organs" :key="o.code"
-                 class="rounded-[18px] border px-4 py-3"
-                 :style="{ background: 'var(--surface)', borderColor: 'var(--rim)' }">
+                 class="px-4 py-3"
+                >
           <summary class="flex cursor-pointer items-center gap-2 list-none">
             <span class="block h-2.5 w-2.5 shrink-0 rounded-full"
                   :style="{ background: `var(--sig-${tone(o.light)})` }" aria-hidden="true"></span>
@@ -200,10 +199,10 @@ const METH = [
 
     <!-- ═══ РАССТОЯНИЕ ДО ЦЕЛЕЙ ═══ -->
     <section v-if="far.length">
-      <h2 class="mb-2 font-label text-[0.75rem] uppercase tracking-[0.14em]"
-          :style="{ color: 'var(--text-muted)' }">Расстояние до целей</h2>
-      <div class="rounded-[18px] border px-4 py-2"
-           :style="{ background: 'var(--surface)', borderColor: 'var(--rim)' }">
+      <h2 class="mb-2 kh-eyebrow"
+         >Расстояние до целей</h2>
+      <div class="rounded-[18px] kh-card px-4 py-2"
+          >
         <div v-for="m in far" :key="m.key + m.organ" class="border-b py-2.5 last:border-b-0"
              :style="{ borderColor: 'var(--line)' }">
           <div class="flex items-baseline justify-between gap-3">
@@ -229,14 +228,14 @@ const METH = [
 
     <!-- ═══ ТРЕВОГИ ═══ -->
     <section>
-      <h2 class="mb-2 font-label text-[0.75rem] uppercase tracking-[0.14em]"
-          :style="{ color: 'var(--text-muted)' }">Тревоги · Т-NN</h2>
+      <h2 class="mb-2 kh-eyebrow"
+         >Тревоги · Т-NN</h2>
       <div class="flex flex-col gap-3">
         <article v-for="a in [...openAlerts, ...closedAlerts]" :key="a.code"
-                 class="rounded-[18px] border border-l-[3px] px-4 py-3"
-                 :style="{ background: 'var(--surface)', borderColor: 'var(--rim)',
-                           borderLeftColor: a.open ? 'var(--sig-alarm)' : 'var(--line)',
-                           opacity: a.open ? 1 : 0.75 }">
+                 class="kh-card relative overflow-hidden rounded-[18px] px-4 py-3"
+                 :style="{ opacity: a.open ? 1 : 0.75 }">
+          <span v-if="a.open" class="absolute inset-y-0 left-0 w-[3px]" aria-hidden="true"
+                :style="{ background: 'var(--sig-alarm)' }"></span>
           <div class="flex flex-wrap items-baseline gap-2">
             <span class="font-mono text-[0.6875rem] font-bold uppercase tracking-wide"
                   :style="{ color: a.open ? 'var(--sig-alarm)' : 'var(--text-muted)' }">
@@ -245,7 +244,7 @@ const METH = [
             <span class="font-mono text-[0.75rem] font-semibold">{{ a.code }}</span>
             <span class="text-[0.6875rem]" :style="{ color: 'var(--text-muted)' }">{{ a.date }} · {{ a.organ }}</span>
           </div>
-          <p class="mt-1 text-[0.9375rem] font-medium leading-snug">{{ md(a.title) }}</p>
+          <p class="mt-1 text-[0.9375rem] font-semibold leading-snug">{{ md(a.title) }}</p>
           <p v-if="a.who" class="mt-2 text-[0.8125rem] leading-snug" :style="{ color: 'var(--text-secondary)' }">
             <b>К кому:</b> {{ md(a.who) }}
           </p>
@@ -267,10 +266,10 @@ const METH = [
     </section>
 
     <!-- ═══ ТОЧНОСТЬ ═══ -->
-    <section class="rounded-[20px] border px-5 py-5"
-             :style="{ background: 'var(--surface)', borderColor: 'var(--rim)' }">
-      <h2 class="font-label text-[0.75rem] uppercase tracking-[0.14em]"
-          :style="{ color: 'var(--text-muted)' }">Точность контура · Р-4</h2>
+    <section class="rounded-[20px] kh-card px-5 py-5"
+            >
+      <h2 class="kh-eyebrow"
+         >Точность контура · Р-4</h2>
       <p v-if="!acc.closed" class="mt-2 text-[0.875rem] leading-relaxed">
         ⚠ <b>Точность контура неизвестна: исходов {{ acc.closed }} из {{ acc.total }}.</b>
         Прибор, который ни разу не проверялся фактом, не имеет права называть свою
@@ -284,10 +283,10 @@ const METH = [
 
     <!-- ═══ ПРОБЕЛЫ ═══ -->
     <section>
-      <h2 class="mb-2 font-label text-[0.75rem] uppercase tracking-[0.14em]"
-          :style="{ color: 'var(--text-muted)' }">Пробелы · Р-6</h2>
-      <div class="rounded-[18px] border px-4 py-3"
-           :style="{ background: 'var(--surface)', borderColor: 'var(--rim)' }">
+      <h2 class="mb-2 kh-eyebrow"
+         >Пробелы · Р-6</h2>
+      <div class="rounded-[18px] kh-card px-4 py-3"
+          >
         <p class="text-[0.8125rem] font-semibold">Не измерялось ни разу — {{ gaps.length }}</p>
         <div v-for="m in gaps" :key="m.key + m.organ" class="border-b py-2 last:border-b-0"
              :style="{ borderColor: 'var(--line)' }">
@@ -300,8 +299,8 @@ const METH = [
         </div>
       </div>
 
-      <div v-if="(r.therapy_gaps || []).length" class="mt-3 rounded-[18px] border px-4 py-3"
-           :style="{ background: 'var(--surface)', borderColor: 'var(--sig-alarm)' }">
+      <div v-if="(r.therapy_gaps || []).length" class="kh-solid kh-rim mt-3 rounded-[18px] px-4 py-3"
+           :style="{ background: 'var(--sig-alarm-fill)' }">
         <p class="text-[0.8125rem] font-semibold" :style="{ color: 'var(--sig-alarm-ink)' }">
           Пробел на фоне терапии — {{ r.therapy_gaps.length }}
         </p>
@@ -318,10 +317,10 @@ const METH = [
 
     <!-- ═══ ГОРИЗОНТ ═══ -->
     <section v-if="life.current">
-      <h2 class="mb-2 font-label text-[0.75rem] uppercase tracking-[0.14em]"
-          :style="{ color: 'var(--text-muted)' }">Горизонт · SYS-17</h2>
-      <div class="rounded-[18px] border px-4 py-3"
-           :style="{ background: 'var(--surface)', borderColor: 'var(--rim)' }">
+      <h2 class="mb-2 kh-eyebrow"
+         >Горизонт · SYS-17</h2>
+      <div class="rounded-[18px] kh-card px-4 py-3"
+          >
         <div class="flex items-baseline justify-between gap-3 py-1">
           <span class="text-[0.875rem]" :style="{ color: 'var(--text-muted)' }">Текущий круг</span>
           <span class="text-[0.9375rem] font-semibold tabular-nums">{{ life.current }}</span>
@@ -359,8 +358,8 @@ const METH = [
         </p>
       </div>
 
-      <div v-if="(life.not_included || []).length" class="mt-3 rounded-[18px] border px-4 py-3"
-           :style="{ background: 'var(--surface)', borderColor: 'var(--rim)' }">
+      <div v-if="(life.not_included || []).length" class="mt-3 rounded-[18px] kh-card px-4 py-3"
+          >
         <p class="text-[0.8125rem] font-semibold">Не учтено в модели</p>
         <div v-for="n in life.not_included" :key="n.key" class="border-b py-2 last:border-b-0"
              :style="{ borderColor: 'var(--line)' }">
@@ -378,17 +377,17 @@ const METH = [
 
     <!-- ═══ МЕТОДИКА ═══ -->
     <section>
-      <h2 class="mb-2 font-label text-[0.75rem] uppercase tracking-[0.14em]"
-          :style="{ color: 'var(--text-muted)' }">Методика — что это значит и чего здесь нет</h2>
+      <h2 class="mb-2 kh-eyebrow"
+         >Методика — что это значит и чего здесь нет</h2>
       <div class="flex flex-col gap-3">
-        <div v-for="[t, a, b] in METH" :key="t" class="rounded-[18px] border px-4 py-3"
-             :style="{ background: 'var(--surface)', borderColor: 'var(--rim)' }">
+        <div v-for="[t, a, b] in METH" :key="t" class="rounded-[18px] kh-card px-4 py-3"
+            >
           <p class="text-[0.875rem] font-semibold leading-snug">{{ t }}</p>
-          <p class="mt-2 text-[0.625rem] uppercase tracking-[0.08em]" :style="{ color: 'var(--text-muted)' }">
+          <p class="kh-eyebrow mt-2 !text-[0.625rem]">
             что это значит
           </p>
           <p class="text-[0.8125rem] leading-snug">{{ a }}</p>
-          <p class="mt-2 text-[0.625rem] uppercase tracking-[0.08em]" :style="{ color: 'var(--text-muted)' }">
+          <p class="kh-eyebrow mt-2 !text-[0.625rem]">
             что делать
           </p>
           <p class="text-[0.8125rem] leading-snug">{{ b }}</p>

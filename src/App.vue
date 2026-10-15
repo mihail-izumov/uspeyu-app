@@ -107,8 +107,11 @@ onMounted(loadPublic)
  * загрузки приложения. */
 watch(() => gate.authed.value, () => {
   document.documentElement.setAttribute('data-theme', '')
+  /* Д-70: строка состояния красится холстом контура, а не литералом —
+     литерал разъехался бы с `--bg` при первой правке токенов. */
   const meta = document.querySelector('meta[name="theme-color"]')
-  if (meta) meta.setAttribute('content', '#F7F6F3')
+  const bg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim()
+  if (meta && bg) meta.setAttribute('content', bg)
 }, { immediate: true })
 
 const charge = computed(() => {
@@ -230,15 +233,16 @@ onMounted(() => {
          телефоне в полноэкранном режиме перезагрузить нечем. Поймано
          владельцем 30.08.2026 на живом приложении. -->
     <template #header-trailing>
+      <!-- Д-70: нажимаемая пилюля носит объём (§11б), а не обводку. -->
       <button
         type="button"
-        class="shrink-0 rounded-full border px-3 py-1.5 text-[0.8125rem] active:opacity-70"
-        :style="{ borderColor: 'var(--line)', color: 'var(--text-muted)' }"
+        class="kh-pill kh-rim inline-flex h-9 shrink-0 items-center rounded-full px-4 text-[0.875rem] font-semibold active:opacity-80"
+        :style="{ color: 'var(--text-secondary)' }"
         @click="signOut"
       >Выйти</button>
     </template>
 
-    <div v-if="dataError" class="rounded-[20px] border px-5 py-5" :style="{ background: 'var(--sig-alarm-fill)', borderColor: 'var(--sig-alarm)' }">
+    <div v-if="dataError" class="kh-solid kh-rim rounded-[20px] px-5 py-5" :style="{ background: 'var(--sig-alarm-fill)' }">
       <p class="text-[0.9375rem] leading-relaxed" :style="{ color: 'var(--sig-alarm-ink)' }">{{ dataError }}</p>
     </div>
 

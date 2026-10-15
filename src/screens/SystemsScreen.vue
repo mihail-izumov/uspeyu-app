@@ -93,8 +93,7 @@ function toggleValue(key) {
       v-for="s in systems"
       :key="s.code"
       type="button"
-      class="rounded-[20px] border px-5 py-4 text-left active:opacity-90"
-      :style="{ background: 'var(--surface)', borderColor: 'var(--rim)', boxShadow: 'var(--card-shadow)' }"
+      class="rounded-[20px] kh-card px-5 py-4 text-left active:opacity-90"
       @click="detail = s"
     >
       <div class="flex items-start gap-3">
@@ -107,7 +106,7 @@ function toggleValue(key) {
         ></span>
         <div class="min-w-0 flex-1">
           <div class="flex items-center justify-between gap-2">
-            <h2 class="font-brand text-[1.0625rem] font-semibold">{{ s.name }}</h2>
+            <h2 class="kh-title">{{ s.name }}</h2>
             <StatusChip :level="s.light" size="sm" />
           </div>
           <p class="kh-balance mt-1.5 text-[0.8125rem] leading-snug" :style="{ color: 'var(--text-secondary)' }">
@@ -135,21 +134,21 @@ function toggleValue(key) {
 
         <!-- Тревоги системы — дословно из risk/JOURNAL-risks.md -->
         <template v-if="detail.alerts.length">
-          <h3 class="mb-2 mt-6 font-label text-[0.75rem] uppercase tracking-[0.14em]" :style="{ color: 'var(--text-muted)' }">
+          <h3 class="mb-2 mt-6 kh-eyebrow">
             Тревоги
           </h3>
           <div class="flex flex-col gap-2.5">
             <article
               v-for="code in detail.alerts"
               :key="code"
-              class="rounded-[14px] border px-4 py-3.5"
-              :style="{ background: 'var(--sig-alarm-fill)', borderColor: 'var(--sig-alarm)' }"
+              class="rounded-[14px] px-4 py-3.5 kh-solid kh-rim"
+              :style="{ background: 'var(--sig-alarm-fill)' }"
             >
               <div class="flex items-center gap-2">
                 <span class="font-mono text-[0.75rem]" :style="{ color: 'var(--sig-alarm-ink)' }">{{ code }}</span>
                 <span class="text-[0.75rem]" :style="{ color: 'var(--text-muted)' }">{{ fmtDate(alertsByCode[code]?.date) }}</span>
               </div>
-              <p class="mt-1.5 text-[0.9375rem] font-medium leading-snug" :style="{ color: 'var(--sig-alarm-ink)' }">
+              <p class="mt-1.5 text-[0.9375rem] font-semibold leading-snug" :style="{ color: 'var(--sig-alarm-ink)' }">
                 {{ alertsByCode[code]?.title }}
               </p>
               <p v-if="alertsByCode[code]?.seen" class="mt-2 text-[0.8125rem] leading-relaxed" :style="{ color: 'var(--text-secondary)' }">
@@ -163,18 +162,16 @@ function toggleValue(key) {
         </template>
 
         <!-- Показатели: статус и направление. Число — по запросу. -->
-        <h3 class="mb-1 mt-6 font-label text-[0.75rem] uppercase tracking-[0.14em]" :style="{ color: 'var(--text-muted)' }">
+        <h3 class="mb-1 mt-6 kh-eyebrow">
           Показатели
         </h3>
         <p class="mb-2.5 text-[0.75rem]" :style="{ color: 'var(--text-muted)' }">
           Нажмите на строку, чтобы увидеть число и цель.
         </p>
-        <ul class="flex flex-col gap-1.5">
+        <ul class="kh-list rounded-[16px]">
           <li
             v-for="m in sortedMarkers(detail)"
             :key="m.key"
-            class="rounded-[14px] border"
-            :style="{ background: 'var(--surface)', borderColor: 'var(--rim)' }"
           >
             <button
               type="button"
@@ -263,15 +260,14 @@ function toggleValue(key) {
 
         <!-- Вопросы врачу — выход контура. Не «что делать», а «что спросить». -->
         <template v-if="questionsFor(detail).length">
-          <h3 class="mb-2 mt-6 font-label text-[0.75rem] uppercase tracking-[0.14em]" :style="{ color: 'var(--text-muted)' }">
+          <h3 class="mb-2 mt-6 kh-eyebrow">
             Спросить у врача
           </h3>
-          <ul class="flex flex-col gap-2">
+          <ul class="kh-list rounded-[16px]">
             <li
               v-for="q in questionsFor(detail)"
               :key="q.code"
-              class="rounded-[14px] border px-4 py-3"
-              :style="{ background: 'var(--surface)', borderColor: 'var(--rim)' }"
+              class="px-4 py-3"
             >
               <div class="flex items-center gap-2">
                 <span class="font-mono text-[0.75rem]" :style="{ color: 'var(--text-muted)' }">{{ q.code }}</span>

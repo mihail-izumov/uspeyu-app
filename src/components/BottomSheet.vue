@@ -92,12 +92,14 @@ function onEnd() {
         @click="emit('close')"
       ></div>
 
+      <!-- Д-70: панель держится своей светлотой (`--sheet` светлее холста) и
+           затемнением под ней; канта по верхнему краю нет — на достаточной
+           светлоте линия поверх края читается обводкой (D-351, D-353). -->
       <div
-        class="kh-fade-in relative flex max-h-[90%] w-full max-w-[430px] flex-col rounded-t-[20px] border-t"
+        class="kh-fade-in relative flex max-h-[90%] w-full max-w-[430px] flex-col rounded-t-[24px]"
         :style="{
           background: 'var(--sheet)',
-          borderColor: 'var(--rim)',
-          boxShadow: 'inset 0 1px 0 var(--rim-glow), 0 -24px 48px -24px rgba(0,0,0,0.35)',
+          boxShadow: 'inset 0 1px 0 var(--rim-glow), var(--card-shadow-float)',
           transform: drag ? `translateY(${drag}px)` : '',
           transition: dragging ? 'none' : 'transform 0.24s cubic-bezier(0.32, 0.72, 0, 1)',
         }"
@@ -110,11 +112,12 @@ function onEnd() {
              начнёт искать крестик. -->
         <div @touchstart.passive="onStart($event, true)">
           <div class="flex justify-center pb-1 pt-2.5">
-            <span class="block h-1 w-9 rounded-full" :style="{ background: 'var(--line)' }"></span>
+            <span class="block h-[5px] w-9 rounded-full" :style="{ background: 'var(--rim)' }"></span>
           </div>
 
-          <div v-if="title || subtitle" class="px-5 pb-3 pt-1">
-            <h2 v-if="title" class="font-brand text-[1.125rem] font-semibold leading-tight">{{ title }}</h2>
+          <div v-if="title || subtitle" class="px-5 pb-3 pt-2">
+            <!-- Заголовок шторки — `.fk-sheet-h` /join, на ступень мельче. -->
+            <h2 v-if="title" class="font-brand text-[1.375rem] font-bold leading-tight tracking-[-0.02em]">{{ title }}</h2>
             <p v-if="subtitle" class="mt-1 text-[0.8125rem] leading-snug" :style="{ color: 'var(--text-muted)' }">
               {{ subtitle }}
             </p>

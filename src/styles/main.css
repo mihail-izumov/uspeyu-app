@@ -17,10 +17,41 @@
    ═══════════════════════════════════════════════════════════════════════ */
 
 :root {
-  /* нейтрали (светлый холст) */
-  --bg: #F7F6F3;  --surface: #FFFFFF;  --surface-2: #F1F0EC;
-  --line: #E3E1DB;
-  --text: #1C1B18;  --text-secondary: #45433E;  --text-muted: #6F6D66;
+  /* ── НЕЙТРАЛИ СВЕТЛОГО ХОЛСТА — холодный ряд Трека (Д-70, 15.10.2026) ──
+     Слово владельца: «мы сделали дизайн главной, теперь нужно причесать
+     дизайн всего, что внутри. Но тема остаётся светлая, стандарты
+     по-прежнему берём из лендинга Ультры и /join». /join стоит на копии
+     токенов Трека (ultra.runscale.ru `lp/ultra/styles/main.css` ← gderost
+     `app/src/styles/main.css`, DESIGN-STANDARD §11а, D-614…D-618), поэтому
+     ряд снят оттуда целиком, а не подобран заново:
+       холст темнее белой карточки на 18–28 единиц и холоднее её
+       (синева минус краснота +9…+11). Прежний песочный #F7F6F3 был
+       теплее карточки, и карточке приходилось держаться рамкой.
+     Ряд холодный ЦЕЛИКОМ — холст, второй и третий план, линии, кант,
+     шторка, наведение: половина тёплых значений рядом с холодными даёт
+     грязь на стыке. Текстовый ряд тёплый, кроме подзаголовка: он стоит
+     прямо на холсте, и прежний #6F6D66 давал на нём 4,12 при пороге 4,5.
+     Посчитано против холста #E3E5ED:
+       --text 13,7 · --text-secondary 7,9 · --text-muted 4,9 · --action-text 5,3
+     ⚠ Набор тёмной главной (`uspeyu-dark` ниже) переопределяет все эти
+     токены сам, и главная этой правкой не задета. */
+  --bg: #E3E5ED;  --surface: #FFFFFF;  --surface-2: #EFF1F6;
+  /* Третий план: плитки и служебные плашки НА белой карточке или в шторке —
+     второй план на белом почти сливается (GR-46 gderost). */
+  --surface-3: #E7E9F1;
+  /* Фон вокруг колонки на компьютере — темнее холста, иначе колонка читается
+     вдавленной. */
+  --bg-around: #D7DAE4;
+  /* Свет на холсте (D-618, D-637) и зерно поверх него (D-676): холст
+     набирает светлоту к левому верхнему углу, пятно гаснет к 70 % высоты,
+     низ остаётся чистым --bg — под капсулой навигации подложка сплошная.
+     Зерно на четыре процента снимает полосы плавного перехода. */
+  --bg-veil: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncA type='linear' slope='0.04'/></feComponentTransfer></filter><rect width='160' height='160' filter='url(%23g)'/></svg>"),
+             radial-gradient(125% 78% at 6% 0%,
+               rgba(255, 255, 255, 0.70) 0%,
+               rgba(255, 255, 255, 0) 66%);
+  --line: #E2E4EB;
+  --text: #1C1B18;  --text-secondary: #45433E;  --text-muted: #5F6169;
   --graphite: #3A3833;
 
   /* ── СВЕТОФОР СИСТЕМЫ ────────────────────────────────────────────────
@@ -47,19 +78,29 @@
        --sig-alarm   #C4231A → 5.01:1
        --sig-unknown #5B6470 → 5.55:1
      Заливки (`*-fill`) — светлые подложки той же тональности, на них текст
-     берётся из `*-ink`. */
-  --sig-ok: #1F7A43;       --sig-ok-fill: #E4F2E9;       --sig-ok-ink: #14532D;
-  --sig-watch: #8A6A00;    --sig-watch-fill: #FBF0CF;    --sig-watch-ink: #6B5200;
+     берётся из `*-ink`.
+
+     ⚠ Д-70: на холодном холсте зелёный и жёлтый текстом проваливали порог
+     (4,26 и 4,03 против #E3E5ED; 4,42 и 4,18 на третьем плане). Тон тот же,
+     светлота на ступень ниже:
+       --sig-ok    #1C7340 → холст 4,67 · третий план 4,84 · карточка 5,87
+       --sig-watch #7D6000 → холст 4,71 · третий план 4,89 · карточка 5,92 */
+  --sig-ok: #1C7340;       --sig-ok-fill: #E4F2E9;       --sig-ok-ink: #14532D;
+  --sig-watch: #7D6000;    --sig-watch-fill: #FBF0CF;    --sig-watch-ink: #6B5200;
   --sig-alarm: #C4231A;    --sig-alarm-fill: #FBE6E4;    --sig-alarm-ink: #8F1810;
   --sig-unknown: #5B6470;  --sig-unknown-fill: #ECEEF1;  --sig-unknown-ink: #3E4650;
   --sig-blocked: #6B4FA8;  --sig-blocked-fill: #EFEAF8;  --sig-blocked-ink: #4A3576;
 
   /* цвет действия: кнопки, ссылки, активные контролы */
   --action: #2563EB;  --action-ink: #FFFFFF;
-  /* синий В РОЛИ ТЕКСТА — отдельно от синей заливки. На светлом холсте это
-     тот же цвет; на тёмном они расходятся по арифметике: цвет, читаемый
-     текстом на почти чёрном, уже не держит белые чернила на себе. */
-  --action-text: #2563EB;
+  /* синий В РОЛИ ТЕКСТА — отдельно от синей заливки. ⚠ С Д-70 они
+     разошлись и на светлом: заливочный #2563EB текстом на холсте #E3E5ED
+     даёт 4,11 при пороге 4,5. Значение — из ряда Трека (D-617): 5,33 на
+     холсте, 6,70 на карточке. Белые чернила на заливке держат 5,17. */
+  --action-text: #1D4ED8;
+  /* Ореол вокруг синей заливки: тень кнопки несёт её собственный цвет —
+     серая тень под синим читается грязью (D-662). */
+  --action-halo: rgba(37, 99, 235, 0.28);
 
   /* Выворотка: объект, который сейчас открыт. Средство сильное и потому
      единственное — им помечается ровно одно состояние. */
@@ -109,18 +150,39 @@
   --wk-ahead: #BBD1F7;
   --wk-target: #7C3AED;
 
-  --sheet: #F7F6F3;
+  /* Холст шторки СВЕТЛЕЕ холста страницы: панель выехала поверх страницы,
+     то есть поднялась к человеку. Отделяет её ещё и затемнение под ней. */
+  --sheet: #F3F5F9;
   --ink-on-color: #FFFFFF;
   --ink-on-color-muted: #BAB9B8;
+  /* Приглушённый белый на синей заливке действия: 4,53 против #2563EB. */
+  --ink-on-action-muted: #EAF0FF;
   --line-on-color: #8D8C89;
   --scrim: rgba(28, 27, 24, 0.45);
-  --placeholder: #6F6D66;
+  --placeholder: #5F6169;
 
-  /* кант карточек: обводка и верхний блик («свет сверху») */
-  --rim: #E3E1DB;
-  --rim-glow: rgba(255, 255, 255, 0.6);
-  --card-shadow: 0 2px 14px rgba(28, 27, 24, 0.08);
-  --surface-hover: #E7E5DF;
+  /* ── КАНТ И ОБЪЁМ КАРТОЧКИ (Д-70 по DESIGN-STANDARD §11, §11а) ────────
+     Рамок вокруг карточек нет: карточка отделяется от холста заливкой и
+     объёмом. Объём держат три вещи разом — тень под карточкой, светлая
+     грань сверху, тёмная грань снизу (`.kh-solid`); периметр замыкает
+     неровный кант, светлый вверху слева и тёмный внизу справа (`.kh-rim`).
+     Ровная линия по контуру — дефект: она читается рамкой. Линия `--line`
+     живёт только ВНУТРИ карточки, разделителем строк. */
+  /* Обводка пилюль и полей: пятнадцать единиц против холста, тридцать семь
+     против карточки — стоит и там, и там. */
+  --rim: #D3D7E1;
+  --rim-glow: rgba(255, 255, 255, 0.92);
+  --rim-shade: rgba(28, 27, 24, 0.10);
+  --card-shadow: 0 1px 2px rgba(28, 27, 24, 0.04),
+                 0 8px 24px -12px rgba(28, 27, 24, 0.16);
+  /* Мелкому предмету (пилюля, чип) нужна контактная тень: светлая грань
+     на белом мелком предмете не видна, и объём держит одна тень (D-631). */
+  --card-shadow-sm: 0 1px 1px rgba(28, 27, 24, 0.10),
+                    0 3px 8px -2px rgba(28, 27, 24, 0.18);
+  /* Плавающий слой — шторка, капсула шапки: висит над страницей, а не лежит. */
+  --card-shadow-float: 0 2px 6px rgba(28, 27, 24, 0.10),
+                       0 18px 36px -12px rgba(28, 27, 24, 0.34);
+  --surface-hover: #E7E9F1;
 
   /* ── НАВИГАЦИЯ — ПОСТОЯННАЯ ВЕЛИЧИНА ─────────────────────────────────
      Плавающая капсула внизу принадлежит приложению, а не странице: она стоит
@@ -128,9 +190,11 @@
      Меняясь вместе с холстом, она сообщала бы, что изменился сам орган
      управления, тогда как изменилась только страница под ним. Свой набор
      токенов объявлен ТОЛЬКО здесь и наборами тем не переопределяется. */
+  /* ⚠ Д-70: линия и подписи капсулы переведены в холодный ряд вместе с
+     холстом — тёплая обводка на холодном стекле давала тот самый стык. */
   --nav-surface: #FFFFFF;
-  --nav-line: #E3E1DB;
-  --nav-muted: #6F6D66;
+  --nav-line: #DDE0E8;
+  --nav-muted: #5F6169;
   --nav-accent: #2563EB;
   --nav-accent-ink: #FFFFFF;
 }
@@ -178,7 +242,7 @@
   html { font-size: 100%; }            /* 1rem = 16px; масштаб через rem (HIG) */
   body {
     margin: 0;
-    background: var(--surface-2);      /* нейтральный фон-окружение на десктопе */
+    background: var(--bg-around);      /* фон-окружение колонки на десктопе (Д-70) */
     color: var(--text);
     font-size: 1.0625rem;              /* 17px — базовый body по HIG */
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
@@ -188,6 +252,248 @@
   html[data-theme='auth-dark'],
   html[data-theme='auth-dark'] body { background: var(--bg); }
   html[data-theme='auth-dark'] { color-scheme: dark; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ЯЗЫК ПОВЕРХНОСТЕЙ ВНУТРИ (Д-70, 15.10.2026)
+
+   Слово владельца: «причесать дизайн всего, что внутри; тема остаётся
+   светлая, стандарты — из лендинга Ультры и /join». Классы ниже — тот же
+   язык, что у Трека и /join (gderost DESIGN-STANDARD §11, §11а, §11б;
+   классы `gr-solid`, `gr-rim`, `gr-pill`, `gr-groove` gderost и `.fk-*`
+   страницы /join), с префиксом контура `kh-`. Главная (`uspeyu-dark`)
+   ими не пользуется.
+
+   ⚠ КЛАССЫ В `@layer components`, А УТИЛИТЫ TAILWIND — СЛОЕМ ВЫШЕ.
+   Забытый рядом `border` вернёт карточке рамку, `shadow-*` молча снимет
+   объём — сборка при этом не упадёт. Ловится поиском по `src`.
+   ⚠ Фолбэки в `var()` обязательны: незаданная переменная делает невалидным
+   всё свойство `box-shadow` целиком.
+   ═══════════════════════════════════════════════════════════════════════ */
+@layer components {
+  /* Объём: тень под предметом, светлая грань сверху, тёмная снизу.
+     Свет падает сверху слева — во всём приложении из одной точки. */
+  .kh-solid {
+    box-shadow:
+      inset 0 1px 0 var(--rim-glow, transparent),
+      inset 0 -1px 0 var(--rim-shade, transparent),
+      var(--card-shadow, none);
+  }
+
+  /* Кант: пара граней, светлая вверху слева и тёмная внизу справа. Ровный
+     кант по кругу — та же рамка под другим именем. Псевдоэлементом с маской,
+     чтобы не занимать ни `border`, ни заливку. */
+  .kh-rim, .kh-card, .up-card, .up-banner { position: relative; }
+  @supports (mask-composite: exclude) or (-webkit-mask-composite: xor) {
+    .kh-rim::after, .kh-card::after, .up-card::after, .up-banner::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1px;
+      background: linear-gradient(
+        150deg,
+        var(--rim-glow, transparent) 0%,
+        rgba(255, 255, 255, 0) 45%,
+        var(--rim-shade, transparent) 100%
+      );
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+              mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+              mask-composite: exclude;
+      pointer-events: none;
+    }
+  }
+
+  /* Карточка: белая заливка + объём + кант. Новая карточка заводится сразу
+     этим классом — без него она остаётся плоской и сливается с холстом. */
+  .kh-card {
+    background-color: var(--surface);
+    box-shadow:
+      inset 0 1px 0 var(--rim-glow, transparent),
+      inset 0 -1px 0 var(--rim-shade, transparent),
+      var(--card-shadow, none);
+  }
+
+  /* Пилюля, которую можно нажать, носит объём; та, что только показывает,
+     стоит плоской (§11б). Заливка с наклоном света, контактная тень. */
+  .kh-pill {
+    background: linear-gradient(
+      170deg,
+      var(--pill-fill, var(--surface)) 0%,
+      color-mix(in srgb, var(--text) 7%, var(--pill-fill, var(--surface))) 100%
+    );
+    box-shadow:
+      inset 0 1px 0 var(--rim-glow, transparent),
+      inset 0 -1px 0 var(--rim-shade, transparent),
+      var(--card-shadow-sm, none);
+  }
+
+  /* Жёлоб полосы: величина плоская, объём у паза. */
+  .kh-groove { box-shadow: inset 0 1px 2px var(--rim-shade, transparent); }
+
+  /* Ярлык раздела — как `.fk-eyebrow` /join: прописные, разрядка, вес 600. */
+  .kh-eyebrow {
+    font-size: 0.75rem;
+    line-height: 1.2;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* Заголовок карточки — плотный и жирный, как `.fk-blk-h` /join. */
+  .kh-title {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+    font-size: 1.125rem;
+    line-height: 1.25;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  /* Кнопки — капсулы прописью с разрядкой, как `.fk-btn` /join. */
+  .kh-btn {
+    display: flex;
+    width: 100%;
+    min-height: 52px;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 999px;
+    padding: 0 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+  }
+  .kh-btn:active { opacity: 0.88; transform: scale(0.99); }
+  .kh-btn:focus-visible { outline: 2px solid var(--action); outline-offset: 2px; }
+  /* Главное действие — синяя заливка, белые чернила, тень цвета самой кнопки. */
+  .kh-btn-primary {
+    background: var(--action);
+    color: var(--action-ink);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.22),
+      0 10px 22px -12px var(--action-halo, transparent);
+  }
+  /* Тихое действие — `.fk-go` /join: третий план и синий текст. */
+  .kh-btn-quiet {
+    background: var(--surface-3);
+    color: var(--action-text);
+  }
+  .kh-btn:disabled {
+    background: var(--surface-3);
+    color: var(--text-muted);
+    box-shadow: none;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* Ссылка-действие со стрелкой — `.fk-go-link` /join, только синим. */
+  .kh-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    min-height: 44px;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--action-text);
+  }
+
+  /* Чип выбора (под-вкладки, фильтры, переключатели). Выбранный —
+     выворотка цветом текста, как вкладки обязательства на /join: средство
+     сильное, поэтому второй метки у выбранного нет. */
+  .kh-chip {
+    display: inline-flex;
+    min-height: 36px;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    border-radius: 999px;
+    padding: 0 14px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    white-space: nowrap;
+    color: var(--text);
+    background: linear-gradient(
+      170deg,
+      var(--surface) 0%,
+      color-mix(in srgb, var(--text) 7%, var(--surface)) 100%
+    );
+    box-shadow:
+      inset 0 1px 0 var(--rim-glow, transparent),
+      inset 0 -1px 0 var(--rim-shade, transparent),
+      var(--card-shadow-sm, none);
+    cursor: pointer;
+  }
+  .kh-chip[aria-selected='true'],
+  .kh-chip[aria-pressed='true'],
+  .kh-chip.is-on {
+    background: var(--text);
+    color: var(--surface);
+    box-shadow: none;
+  }
+  .kh-chip:focus-visible { outline: 2px solid var(--action); outline-offset: 2px; }
+  /* Фильтр внутри подраздела — ступенью ниже: мельче, и выбранный не
+     выворачивается, а тонируется синим. Две выворотки подряд (подраздел и
+     фильтр в нём) читались одним уровнем, и было не понять, что чему
+     принадлежит. */
+  .kh-chip-sm {
+    min-height: 32px;
+    padding: 0 12px;
+    font-size: 0.8125rem;
+  }
+  .kh-chip-sm[aria-pressed='true'] {
+    background: color-mix(in srgb, var(--action) 12%, var(--surface));
+    color: var(--action-text);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--action) 30%, transparent);
+  }
+
+  /* Поле ввода — `.fk-input` /join. ⚠ Кегль 16 px: ниже Safari на iOS
+     увеличивает страницу при фокусе и оставляет её увеличенной. */
+  .kh-field {
+    width: 100%;
+    box-sizing: border-box;
+    background: var(--surface);
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-family: inherit;
+    font-size: 1rem;
+    color: var(--text);
+  }
+  .kh-field::placeholder { color: var(--placeholder); }
+  .kh-field:focus { outline: none; border-color: var(--action); }
+
+  /* Список строк — одна карточка, строки внутри без своей поверхности и
+     без канта, разделены линией `--line` (§11а: «канта не получают строки
+     списков — они живут внутри карточки»). Тридцать отдельных карточек
+     подряд читались стопкой наклеек, а не списком. */
+  .kh-list {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background-color: var(--surface);
+    box-shadow:
+      inset 0 1px 0 var(--rim-glow, transparent),
+      inset 0 -1px 0 var(--rim-shade, transparent),
+      var(--card-shadow, none);
+  }
+  .kh-list > * + * { border-top: 1px solid var(--line); }
+  .kh-list > button { width: 100%; text-align: left; }
+  @media (hover: hover) { .kh-list > button:hover { background-color: var(--surface-hover); } }
+  .kh-list > button:active { background-color: var(--surface-hover); }
+
+  /* Вариант в форме — `.fk-radios button` /join: строка с обводкой, у
+     выбранного цвет состояния задаётся на месте (заливка и обводка). */
+  .kh-option {
+    background: var(--surface);
+    border: 1.5px solid var(--line);
+    border-radius: 14px;
+  }
 }
 
 /* ═══ Загрузочные состояния ═══ */
@@ -302,12 +608,17 @@
    холстом приложения, свои — снять, иначе они складываются вдвое. */
 .up-wrap.up-flush { padding-left: 0; padding-right: 0; padding-bottom: 20px; }
 .up-card {
-  background: var(--surface); border: 1px solid var(--line);
+  /* Д-70: рамка снята — карточку держат заливка, объём и кант (§11). */
+  background: var(--surface); border: 0;
   border-radius: 20px; padding: 18px;
+  box-shadow:
+    inset 0 1px 0 var(--rim-glow, transparent),
+    inset 0 -1px 0 var(--rim-shade, transparent),
+    var(--card-shadow, none);
 }
 .up-muted { color: var(--text-muted); }
 .up-sec {
-  margin: 28px 0 10px; font-size: 13px; letter-spacing: .06em;
+  margin: 28px 0 10px; font-size: 12px; font-weight: 600; letter-spacing: .1em;
   text-transform: uppercase; color: var(--text-muted);
 }
 .up-digit { font-variant-numeric: tabular-nums; }
@@ -336,19 +647,28 @@
    не говорит, что за ней, и её не открывают. */
 .up-banner {
   display: flex; align-items: center; gap: 12px; width: 100%;
-  background: var(--surface); border: 1px solid var(--line);
+  background: var(--surface); border: 0;
   border-radius: 16px; padding: 14px 16px; cursor: pointer; text-align: left;
   color: var(--text); font: inherit;
+  box-shadow:
+    inset 0 1px 0 var(--rim-glow, transparent),
+    inset 0 -1px 0 var(--rim-shade, transparent),
+    var(--card-shadow, none);
 }
 .up-banner:active { background: var(--surface-hover); }
-.up-banner .bt { font-size: 15px; font-weight: 600; }
+.up-banner .bt { font-size: 15px; font-weight: 700; letter-spacing: -0.005em; }
 .up-banner .bs { margin: 2px 0 0; font-size: 12.5px; color: var(--text-muted); line-height: 1.35; }
 .up-banner .arw { flex: 0 0 auto; color: var(--text-muted); }
 
 /* Бабл: капсула-контрол на витрине (выбор протокола, номер версии). */
 .up-bubble {
   display: inline-flex; align-items: center; gap: 6px;
-  border: 1px solid var(--line); background: var(--surface); color: var(--text);
+  border: 0; color: var(--text);
+  background: linear-gradient(170deg, var(--surface) 0%, color-mix(in srgb, var(--text) 7%, var(--surface)) 100%);
+  box-shadow:
+    inset 0 1px 0 var(--rim-glow, transparent),
+    inset 0 -1px 0 var(--rim-shade, transparent),
+    var(--card-shadow-sm, none);
   border-radius: 999px; padding: 7px 12px; font-size: 13.5px; font-weight: 600;
   cursor: pointer; font-family: inherit;
 }
@@ -358,7 +678,12 @@
 .up-round {
   display: inline-flex; align-items: center; justify-content: center;
   width: 36px; height: 36px; flex: 0 0 36px; border-radius: 999px;
-  border: 1px solid var(--line); background: var(--surface); color: var(--action-text);
+  border: 0; color: var(--action-text);
+  background: linear-gradient(170deg, var(--surface) 0%, color-mix(in srgb, var(--text) 7%, var(--surface)) 100%);
+  box-shadow:
+    inset 0 1px 0 var(--rim-glow, transparent),
+    inset 0 -1px 0 var(--rim-shade, transparent),
+    var(--card-shadow-sm, none);
   cursor: pointer;
 }
 .up-round:active { background: var(--surface-hover); }

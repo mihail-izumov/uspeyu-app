@@ -130,10 +130,10 @@ const draftEmpty = computed(() => isEmpty(draft.value))
          телефоне, для контура не существует. -->
     <section
       v-if="pendingExport.length"
-      class="rounded-[20px] border px-5 py-4"
-      :style="{ background: 'var(--sig-watch-fill)', borderColor: 'var(--sig-watch)' }"
+      class="rounded-[20px] px-5 py-4 kh-solid kh-rim"
+      :style="{ background: 'var(--sig-watch-fill)' }"
     >
-      <h2 class="font-brand text-[1.0625rem] font-semibold" :style="{ color: 'var(--sig-watch-ink)' }">
+      <h2 class="kh-title" :style="{ color: 'var(--sig-watch-ink)' }">
         {{ pendingExport.length }}
         {{ pendingExport.length === 1 ? 'отметка не перенесена' : 'отметки не перенесены' }} в контур
       </h2>
@@ -146,8 +146,7 @@ const draftEmpty = computed(() => isEmpty(draft.value))
           v-for="row in pendingExport"
           :key="row.day"
           type="button"
-          class="flex min-h-[48px] items-center justify-between gap-3 rounded-[12px] border px-4 text-left active:opacity-70"
-          :style="{ background: 'var(--surface)', borderColor: 'var(--rim)' }"
+          class="flex min-h-[48px] items-center justify-between gap-3 rounded-[12px] kh-card px-4 text-left active:opacity-70"
           @click="openExport(row)"
         >
           <span class="font-mono text-[0.875rem]">{{ row.day }}</span>
@@ -158,10 +157,9 @@ const draftEmpty = computed(() => isEmpty(draft.value))
 
     <!-- ═══ ПЛАНОВЫЙ ДЕНЬ ═══ -->
     <section
-      class="rounded-[20px] border px-5 py-5"
-      :style="{ background: 'var(--surface)', borderColor: 'var(--rim)', boxShadow: 'var(--card-shadow)' }"
+      class="rounded-[20px] kh-card px-5 py-5"
     >
-      <h2 class="font-brand text-[1.0625rem] font-semibold">Обычный день</h2>
+      <h2 class="kh-title">Обычный день</h2>
       <p class="kh-balance mt-1 text-[0.8125rem] leading-relaxed" :style="{ color: 'var(--text-muted)' }">
         Развёрнут из мастера препаратов. Отмечать нужно не его, а отклонения от него.
       </p>
@@ -196,8 +194,7 @@ const draftEmpty = computed(() => isEmpty(draft.value))
 
       <button
         type="button"
-        class="mt-4 flex min-h-[52px] w-full items-center justify-center rounded-[14px] px-4 text-[0.9375rem] font-medium active:opacity-70"
-        :style="{ background: 'var(--action)', color: 'var(--action-ink)' }"
+        class="mt-4 w-full kh-btn kh-btn-primary"
         @click="openMark"
       >
         Отметить событие
@@ -206,10 +203,9 @@ const draftEmpty = computed(() => isEmpty(draft.value))
 
     <!-- ═══ ЭКСПОЗИЦИЯ ═══ -->
     <section
-      class="rounded-[20px] border px-5 py-5"
-      :style="{ background: 'var(--surface)', borderColor: 'var(--rim)', boxShadow: 'var(--card-shadow)' }"
+      class="rounded-[20px] kh-card px-5 py-5"
     >
-      <h2 class="font-brand text-[1.0625rem] font-semibold">Экспозиция</h2>
+      <h2 class="kh-title">Экспозиция</h2>
       <p class="kh-balance mt-1 text-[0.8125rem] leading-relaxed" :style="{ color: 'var(--text-muted)' }">
         Сколько дней записан приём — за последние 30 и 90 дней.
       </p>
@@ -220,7 +216,7 @@ const draftEmpty = computed(() => isEmpty(draft.value))
             <span class="text-[0.9375rem]">{{ e.key }}</span>
             <span class="font-mono text-[0.875rem]">{{ e.days30 }} из 30 · {{ e.days90 }} из 90</span>
           </div>
-          <div class="mt-1.5 h-1.5 w-full overflow-hidden rounded-full" :style="{ background: 'var(--line)' }">
+          <div class="kh-groove mt-1.5 h-1.5 w-full overflow-hidden rounded-full" :style="{ background: 'var(--surface-3)' }">
             <div
               class="h-full rounded-full"
               :style="{ width: `${Math.min(100, (e.days30 / 30) * 100)}%`, background: 'var(--sig-watch)' }"
@@ -243,10 +239,9 @@ const draftEmpty = computed(() => isEmpty(draft.value))
 
     <!-- ═══ НОСИТЕЛИ ═══ -->
     <section
-      class="rounded-[20px] border px-5 py-5"
-      :style="{ background: 'var(--surface)', borderColor: 'var(--rim)', boxShadow: 'var(--card-shadow)' }"
+      class="rounded-[20px] kh-card px-5 py-5"
     >
-      <h2 class="font-brand text-[1.0625rem] font-semibold">Носители по неделям</h2>
+      <h2 class="kh-title">Носители по неделям</h2>
       <p class="kh-balance mt-1 text-[0.8125rem] leading-relaxed" :style="{ color: 'var(--text-muted)' }">
         Дней с нагрузкой за неделю. Считаются дни, а не порции: порции живут в недельной отметке.
       </p>
@@ -302,10 +297,8 @@ const draftEmpty = computed(() => isEmpty(draft.value))
               v-for="(d, i) in editableDays"
               :key="d"
               type="button"
-              class="min-h-[44px] flex-1 rounded-[12px] border px-3 text-[0.875rem] active:opacity-70"
-              :style="markDay === d
-                ? { background: 'var(--action)', color: 'var(--action-ink)', borderColor: 'var(--action)' }
-                : { background: 'var(--surface)', borderColor: 'var(--rim)' }"
+              class="kh-chip !min-h-[44px] flex-1"
+              :aria-pressed="markDay === d"
               @click="markDay = d"
             >
               {{ i === 0 ? 'Сегодня' : 'Вчера' }} · {{ fmtDay(d) }}
@@ -324,16 +317,16 @@ const draftEmpty = computed(() => isEmpty(draft.value))
             <div v-for="c in CARRIERS" :key="c.id">
               <button
                 type="button"
-                class="flex min-h-[48px] w-full items-center gap-3 rounded-[12px] border px-4 text-left active:opacity-70"
+                class="kh-option flex min-h-[48px] w-full items-center gap-3 px-4 text-left active:opacity-70"
                 :style="draft.carriers.includes(c.id)
                   ? { background: 'var(--sig-watch-fill)', borderColor: 'var(--sig-watch)' }
-                  : { background: 'var(--surface)', borderColor: 'var(--rim)' }"
+                  : {}"
                 :aria-pressed="draft.carriers.includes(c.id)"
                 @click="toggleCarrier(c.id)"
               >
                 <span
                   class="flex h-5 w-5 shrink-0 items-center justify-center rounded-[6px] border"
-                  :style="{ borderColor: draft.carriers.includes(c.id) ? 'var(--sig-watch)' : 'var(--rim)' }"
+                  :style="{ borderColor: draft.carriers.includes(c.id) ? 'var(--sig-watch)' : 'color-mix(in srgb, var(--text) 32%, var(--surface))' }"
                 >
                   <svg v-if="draft.carriers.includes(c.id)" viewBox="0 0 16 16" class="h-3.5 w-3.5" fill="none" aria-hidden="true">
                     <path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
@@ -348,8 +341,8 @@ const draftEmpty = computed(() => isEmpty(draft.value))
                 v-if="draft.carriers.includes(c.id)"
                 v-model="draft.carrierNotes[c.id]"
                 type="text"
-                class="mt-1.5 min-h-[44px] w-full rounded-[12px] border px-4 text-[0.875rem]"
-                :style="{ background: 'var(--surface)', borderColor: 'var(--rim)', color: 'var(--text)' }"
+                class="mt-1.5 min-h-[44px] w-full px-4 kh-field"
+                :style="{ color: 'var(--text)' }"
                 placeholder="что именно и когда — вино, ужин"
               />
             </div>
@@ -365,10 +358,10 @@ const draftEmpty = computed(() => isEmpty(draft.value))
                 v-for="s in (p.slots.length ? p.slots : [{ id: 'any', label: '' }])"
                 :key="p.name + s.id"
                 type="button"
-                class="flex min-h-[48px] w-full items-center justify-between gap-3 rounded-[12px] border px-4 text-left active:opacity-70"
+                class="kh-option flex min-h-[48px] w-full items-center justify-between gap-3 px-4 text-left active:opacity-70"
                 :style="skipped(p, s.label)
                   ? { background: 'var(--sig-alarm-fill)', borderColor: 'var(--sig-alarm)' }
-                  : { background: 'var(--surface)', borderColor: 'var(--rim)' }"
+                  : {}"
                 :aria-pressed="skipped(p, s.label)"
                 @click="toggleSkip(p, s.label)"
               >
@@ -385,8 +378,8 @@ const draftEmpty = computed(() => isEmpty(draft.value))
           <textarea
             v-model="draft.extra"
             rows="2"
-            class="mt-2 w-full rounded-[12px] border px-4 py-3 text-[0.9375rem]"
-            :style="{ background: 'var(--surface)', borderColor: 'var(--rim)', color: 'var(--text)' }"
+            class="mt-2 w-full px-4 py-3 kh-field"
+            :style="{ color: 'var(--text)' }"
             placeholder="аркоксия 120 мг — приступ, левая пятка"
           ></textarea>
           <p class="mt-1 text-[0.75rem]" :style="{ color: 'var(--text-muted)' }">
@@ -400,16 +393,15 @@ const draftEmpty = computed(() => isEmpty(draft.value))
           <textarea
             v-model="draft.note"
             rows="2"
-            class="mt-2 w-full rounded-[12px] border px-4 py-3 text-[0.9375rem]"
-            :style="{ background: 'var(--surface)', borderColor: 'var(--rim)', color: 'var(--text)' }"
+            class="mt-2 w-full px-4 py-3 kh-field"
+            :style="{ color: 'var(--text)' }"
             placeholder="утро только вода, кофе не было — забор натощак"
           ></textarea>
         </div>
 
         <button
           type="button"
-          class="min-h-[52px] w-full rounded-[14px] text-[0.9375rem] font-medium active:opacity-70 disabled:opacity-40"
-          :style="{ background: 'var(--action)', color: 'var(--action-ink)' }"
+          class="w-full kh-btn kh-btn-primary"
           :disabled="draftEmpty"
           @click="saveMark"
         >
@@ -431,12 +423,11 @@ const draftEmpty = computed(() => isEmpty(draft.value))
     >
       <pre
         class="kh-scroll overflow-x-auto rounded-[12px] border px-4 py-3 font-mono text-[0.8125rem] leading-relaxed"
-        :style="{ background: 'var(--surface)', borderColor: 'var(--rim)' }"
+        :style="{ background: 'var(--surface)', borderColor: 'var(--line)' }"
       >{{ exportText }}</pre>
       <button
         type="button"
-        class="mt-3 min-h-[52px] w-full rounded-[14px] text-[0.9375rem] font-medium active:opacity-70"
-        :style="{ background: 'var(--action)', color: 'var(--action-ink)' }"
+        class="mt-3 w-full kh-btn kh-btn-primary"
         @click="copyExport"
       >
         {{ copied ? 'Скопировано' : 'Скопировать' }}

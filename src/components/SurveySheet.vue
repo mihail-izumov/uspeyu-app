@@ -94,8 +94,7 @@ function finish(nothingHappened = false) {
       <div
         v-for="item in current.items"
         :key="item.key"
-        class="rounded-[16px] border px-4 py-3.5"
-        :style="{ background: 'var(--surface)', borderColor: 'var(--rim)' }"
+        class="rounded-[16px] kh-card px-4 py-3.5"
       >
         <p class="text-[0.9375rem] leading-snug">{{ item.text }}</p>
         <p v-if="item.hint" class="mt-1 text-[0.75rem] leading-snug" :style="{ color: 'var(--text-muted)' }">
@@ -110,10 +109,10 @@ function finish(nothingHappened = false) {
             v-for="opt in current.scale"
             :key="opt.v"
             type="button"
-            class="min-h-[44px] rounded-[12px] border px-3 text-left text-[0.8125rem] leading-snug active:opacity-70"
+            class="kh-option min-h-[44px] rounded-[12px] px-3 text-left text-[0.8125rem] leading-snug active:opacity-70"
             :style="answers[item.key] === opt.v
               ? { background: 'var(--action)', borderColor: 'var(--action)', color: 'var(--action-ink)' }
-              : { background: 'var(--surface-2)', borderColor: 'var(--line)' }"
+              : {}"
             @click="toggleChoice(item.key, opt.v)"
           >{{ opt.label }}</button>
         </div>
@@ -127,10 +126,10 @@ function finish(nothingHappened = false) {
               v-for="n in 11"
               :key="n"
               type="button"
-              class="flex h-9 flex-1 items-center justify-center rounded-[8px] border font-mono text-[0.8125rem] tabular-nums active:opacity-70"
+              class="kh-option flex h-9 flex-1 items-center justify-center rounded-[8px] font-mono text-[0.8125rem] tabular-nums active:opacity-70"
               :style="answers[item.key] === n - 1
                 ? { background: 'var(--action)', borderColor: 'var(--action)', color: 'var(--action-ink)' }
-                : { background: 'var(--surface-2)', borderColor: 'var(--line)' }"
+                : {}"
               @click="toggleChoice(item.key, n - 1)"
             >{{ n - 1 }}</button>
           </div>
@@ -144,10 +143,10 @@ function finish(nothingHappened = false) {
             v-for="n in 5"
             :key="n"
             type="button"
-            class="min-h-[44px] flex-1 rounded-[10px] border font-mono text-[0.9375rem] tabular-nums active:opacity-70"
+            class="kh-option min-h-[44px] flex-1 rounded-[10px] font-mono text-[0.9375rem] tabular-nums active:opacity-70"
             :style="answers[item.key] === n
               ? { background: 'var(--action)', borderColor: 'var(--action)', color: 'var(--action-ink)' }
-              : { background: 'var(--surface-2)', borderColor: 'var(--line)' }"
+              : {}"
             @click="toggleChoice(item.key, n)"
           >{{ n }}</button>
         </div>
@@ -157,10 +156,10 @@ function finish(nothingHappened = false) {
             v-for="n in 8"
             :key="n"
             type="button"
-            class="flex h-10 flex-1 items-center justify-center rounded-[8px] border font-mono text-[0.8125rem] tabular-nums active:opacity-70"
+            class="kh-option flex h-10 flex-1 items-center justify-center rounded-[8px] font-mono text-[0.8125rem] tabular-nums active:opacity-70"
             :style="answers[item.key] === n - 1
               ? { background: 'var(--action)', borderColor: 'var(--action)', color: 'var(--action-ink)' }
-              : { background: 'var(--surface-2)', borderColor: 'var(--line)' }"
+              : {}"
             @click="toggleChoice(item.key, n - 1)"
           >{{ n - 1 }}</button>
         </div>
@@ -170,10 +169,10 @@ function finish(nothingHappened = false) {
             v-for="opt in item.options"
             :key="String(opt.v)"
             type="button"
-            class="min-h-[44px] rounded-[12px] border px-4 text-[0.875rem] active:opacity-70"
+            class="kh-option min-h-[44px] rounded-[12px] px-4 text-[0.875rem] active:opacity-70"
             :style="answers[item.key] === opt.v
               ? { background: 'var(--action)', borderColor: 'var(--action)', color: 'var(--action-ink)' }
-              : { background: 'var(--surface-2)', borderColor: 'var(--line)' }"
+              : {}"
             @click="toggleChoice(item.key, opt.v)"
           >{{ opt.label }}</button>
         </div>
@@ -183,8 +182,8 @@ function finish(nothingHappened = false) {
           :value="answers[item.key] ?? ''"
           rows="4"
           placeholder="Визиты, анализы, простуда, стресс, поездки…"
-          class="mt-3 w-full rounded-[12px] border px-3 py-2.5 text-[0.9375rem] outline-none"
-          :style="{ background: 'var(--surface-2)', borderColor: 'var(--line)', color: 'var(--text)' }"
+          class="mt-3 w-full px-3 py-2.5 outline-none kh-field"
+          :style="{ color: 'var(--text)' }"
           @input="set(item.key, $event.target.value)"
         ></textarea>
 
@@ -196,8 +195,8 @@ function finish(nothingHappened = false) {
           :step="item.kind === 'decimal' ? '0.1' : '1'"
           :max="item.max"
           min="0"
-          class="mt-3 w-full rounded-[12px] border px-3 py-2.5 font-mono text-[1rem] outline-none"
-          :style="{ background: 'var(--surface-2)', borderColor: 'var(--line)', color: 'var(--text)' }"
+          class="mt-3 w-full px-3 py-2.5 font-mono text-[1rem] outline-none kh-field"
+          :style="{ color: 'var(--text)' }"
           @input="set(item.key, item.kind === 'text' ? $event.target.value : ($event.target.value === '' ? undefined : Number($event.target.value)))"
         />
       </div>
@@ -207,8 +206,8 @@ function finish(nothingHappened = false) {
     <button
       v-if="isLast"
       type="button"
-      class="mt-4 w-full rounded-[14px] border px-4 py-3 text-[0.9375rem] active:opacity-70"
-      :style="{ background: 'var(--surface-2)', borderColor: 'var(--line)', color: 'var(--text-secondary)' }"
+      class="kh-pill kh-rim mt-4 w-full rounded-full px-4 py-3 text-[0.9375rem] font-semibold active:opacity-80"
+      :style="{ color: 'var(--text-secondary)' }"
       @click="finish(true)"
     >Ничего значимого не было — записать так</button>
 
@@ -216,14 +215,12 @@ function finish(nothingHappened = false) {
       <button
         v-if="step > 0"
         type="button"
-        class="min-h-[52px] rounded-[14px] border px-5 text-[0.9375rem] active:opacity-70"
-        :style="{ borderColor: 'var(--line)', color: 'var(--text-secondary)' }"
+        class="kh-btn kh-btn-quiet !w-auto px-6"
         @click="back"
       >Назад</button>
       <button
         type="button"
-        class="min-h-[52px] flex-1 rounded-[14px] px-5 font-brand text-[1rem] font-semibold active:opacity-90"
-        :style="{ background: 'var(--action)', color: 'var(--action-ink)' }"
+        class="kh-btn kh-btn-primary flex-1 px-5"
         @click="next"
       >{{ isLast ? 'Сохранить отметку' : 'Дальше' }}</button>
     </div>

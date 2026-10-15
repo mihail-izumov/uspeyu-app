@@ -104,14 +104,14 @@ async function copyExport() {
 <template>
   <div class="flex flex-col gap-5">
     <!-- ═══ ПОДРАЗДЕЛЫ ═══ (приём перенесён из «Данных») -->
-    <div class="flex gap-1 rounded-full p-1" :style="{ background: 'var(--surface-2)' }">
+    <div class="kh-groove flex gap-1 rounded-full p-1" :style="{ background: 'color-mix(in srgb, var(--text) 6%, transparent)' }">
       <button
         v-for="s in SUB"
         :key="s.id"
         type="button"
-        class="min-h-[40px] flex-1 rounded-full text-[0.8125rem] active:opacity-70"
+        class="min-h-[40px] flex-1 rounded-full text-[0.8125rem] font-semibold active:opacity-70"
         :style="sub === s.id
-          ? { background: 'var(--surface)', color: 'var(--text)', boxShadow: 'var(--card-shadow)' }
+          ? { background: 'var(--surface)', color: 'var(--text)', boxShadow: 'inset 0 1px 0 var(--rim-glow), var(--card-shadow-sm)' }
           : { color: 'var(--text-muted)' }"
         @click="sub = s.id"
       >{{ s.label }}</button>
@@ -131,10 +131,10 @@ async function copyExport() {
          для контура не существует — по ней не проверить ни одну гипотезу. -->
     <section
       v-if="pendingExport.length"
-      class="rounded-[20px] border px-5 py-4"
-      :style="{ background: 'var(--sig-watch-fill)', borderColor: 'var(--sig-watch)' }"
+      class="rounded-[20px] px-5 py-4 kh-solid kh-rim"
+      :style="{ background: 'var(--sig-watch-fill)' }"
     >
-      <h2 class="font-brand text-[1.0625rem] font-semibold" :style="{ color: 'var(--sig-watch-ink)' }">
+      <h2 class="kh-title" :style="{ color: 'var(--sig-watch-ink)' }">
         {{ pendingExport.length }}
         {{ pendingExport.length === 1 ? 'отметка не перенесена' : 'отметки не перенесены' }} в контур
       </h2>
@@ -147,8 +147,7 @@ async function copyExport() {
           v-for="w in pendingExport"
           :key="w.week"
           type="button"
-          class="flex min-h-[48px] items-center justify-between gap-3 rounded-[12px] border px-4 text-left active:opacity-70"
-          :style="{ background: 'var(--surface)', borderColor: 'var(--rim)' }"
+          class="flex min-h-[48px] items-center justify-between gap-3 rounded-[12px] kh-card px-4 text-left active:opacity-70"
           @click="openExport(w)"
         >
           <span class="font-mono text-[0.875rem]">{{ w.week }}</span>
@@ -159,10 +158,9 @@ async function copyExport() {
 
     <!-- ═══ РЯД «ЗАРЯДА» ═══ -->
     <section
-      class="rounded-[20px] border px-5 py-5"
-      :style="{ background: 'var(--surface)', borderColor: 'var(--rim)', boxShadow: 'var(--card-shadow)' }"
+      class="rounded-[20px] kh-card px-5 py-5"
     >
-      <h2 class="font-brand text-[1.0625rem] font-semibold">Заряд по неделям</h2>
+      <h2 class="kh-title">Заряд по неделям</h2>
 
       <template v-if="chart.length >= 2">
         <!-- Столбики, а не линия. Линия соединяет точки и тем самым обещает,
@@ -200,18 +198,19 @@ async function copyExport() {
     <!-- ═══ НЕДЕЛИ ═══ -->
     <section>
       <div class="mb-2 flex items-center justify-between">
-        <h2 class="font-label text-[0.75rem] uppercase tracking-[0.14em]" :style="{ color: 'var(--text-muted)' }">
+        <h2 class="kh-eyebrow">
           Отметки
         </h2>
         <button
           type="button"
-          class="min-h-[36px] text-[0.875rem] active:opacity-60"
-          :style="{ color: 'var(--action-text)' }"
+          class="kh-link !min-h-[36px] !text-[0.875rem] active:opacity-60"
           @click="emit('open-survey')"
-        >Отметить неделю</button>
+        >Отметить неделю
+          <svg viewBox="0 0 16 16" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5" /></svg>
+        </button>
       </div>
 
-      <div v-if="!weeks.length" class="rounded-[20px] border px-5 py-6 text-center" :style="{ background: 'var(--surface)', borderColor: 'var(--rim)' }">
+      <div v-if="!weeks.length" class="rounded-[20px] kh-card px-5 py-6 text-center">
         <p class="text-[0.9375rem]">Ни одной отметки</p>
         <p class="kh-balance mx-auto mt-1.5 max-w-[22rem] text-[0.8125rem] leading-relaxed" :style="{ color: 'var(--text-muted)' }">
           Недельный слой — несущий, а не вспомогательный. Анализы раз в год покажут, где вы
@@ -223,11 +222,10 @@ async function copyExport() {
         <article
           v-for="w in weeks"
           :key="w.week"
-          class="rounded-[16px] border px-4 py-3.5"
-          :style="{ background: 'var(--surface)', borderColor: 'var(--rim)' }"
+          class="rounded-[16px] kh-card px-4 py-3.5"
         >
           <div class="flex flex-wrap items-center gap-2">
-            <span class="font-mono text-[0.875rem]">{{ w.week }}</span>
+            <span class="font-mono text-[0.875rem] font-semibold">{{ w.week }}</span>
             <span class="text-[0.75rem]" :style="{ color: 'var(--text-muted)' }">{{ fmtWeekRange(w.week) }}</span>
             <span v-if="w.week === currentWeek" class="text-[0.6875rem]" :style="{ color: 'var(--action-text)' }">текущая</span>
             <span class="ml-auto shrink-0">
@@ -275,10 +273,10 @@ async function copyExport() {
          под результат. Здесь он показывается как счётчик: сколько недель
          нужно и сколько набралось. Никаких выводов до порога. -->
     <section
-      class="rounded-[16px] border px-4 py-3.5"
-      :style="{ background: 'var(--surface-2)', borderColor: 'var(--line)' }"
+      class="rounded-[16px] px-4 py-3.5"
+      :style="{ background: 'var(--surface-2)' }"
     >
-      <h2 class="font-label text-[0.75rem] uppercase tracking-[0.14em]" :style="{ color: 'var(--text-muted)' }">
+      <h2 class="kh-eyebrow">
         Что ищет контур в этом ряду
       </h2>
       <ul class="mt-2.5 flex flex-col gap-2 text-[0.8125rem] leading-snug" :style="{ color: 'var(--text-secondary)' }">
@@ -323,8 +321,7 @@ async function copyExport() {
 
       <button
         type="button"
-        class="mt-4 min-h-[52px] w-full rounded-[14px] font-brand text-[1rem] font-semibold active:opacity-90"
-        :style="{ background: 'var(--action)', color: 'var(--action-ink)' }"
+        class="mt-4 w-full kh-btn kh-btn-primary"
         @click="copyExport"
       >{{ copied ? 'Скопировано' : 'Скопировать' }}</button>
 

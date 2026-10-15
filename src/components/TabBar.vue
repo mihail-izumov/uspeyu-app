@@ -30,10 +30,11 @@ defineEmits(['select'])
 <template>
   <nav
     role="tablist"
-    class="flex items-stretch gap-1 rounded-full border p-1 shadow-lg backdrop-blur"
+    class="flex items-stretch gap-1 rounded-full border p-1 backdrop-blur"
     :style="{
       borderColor: 'var(--nav-line)',
       background: 'color-mix(in srgb, var(--nav-surface) 88%, transparent)',
+      boxShadow: 'inset 0 1px 0 var(--rim-glow, transparent), var(--card-shadow-float, none)',
     }"
   >
     <button
@@ -51,9 +52,10 @@ defineEmits(['select'])
         class="h-[20px] w-[20px]"
         :style="{ color: active === tab.id ? 'var(--nav-accent-ink)' : 'var(--nav-muted)' }"
       />
+      <!-- Д-70: подпись строчными и жирнее, как у капсулы Трека и шагов /join:
+           прописные в десять пикселей читались хуже строчных в одиннадцать. -->
       <span
-        class="kh-caps text-[0.625rem] uppercase"
-        style="--caps-track: 0.06em"
+        class="whitespace-nowrap text-[0.6875rem] font-semibold leading-none"
         :style="{ color: active === tab.id ? 'var(--nav-accent-ink)' : 'var(--nav-muted)' }"
       >{{ tab.label }}</span>
     </button>

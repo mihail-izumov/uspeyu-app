@@ -47,11 +47,14 @@ function onSubmit() {
 
 <template>
   <form class="pb-2" @submit.prevent="onSubmit">
+    <!-- Д-70: поле в языке /join (`.fk-input`): белая заливка, обводка
+         полтора пикселя, при ошибке — красная. Логин и пароль — одна
+         группа: логин подписывает протокол, проверяется только фраза. -->
     <div
-      class="overflow-hidden rounded-xl border"
+      class="overflow-hidden rounded-[14px]"
       :style="{
-        background: 'var(--surface-2)',
-        borderColor: error ? 'var(--sig-alarm)' : 'var(--line)',
+        background: 'var(--surface)',
+        border: `1.5px solid ${error ? 'var(--sig-alarm)' : 'var(--line)'}`,
       }"
     >
       <div class="flex min-h-[52px] items-center px-4">
@@ -114,12 +117,11 @@ function onSubmit() {
     <button
       type="submit"
       :disabled="checking || unsupported"
-      class="mt-4 flex w-full items-center justify-center rounded-xl px-4 text-[1.0625rem] font-semibold active:opacity-90 disabled:opacity-60"
+      class="mt-4 w-full kh-btn kh-btn-primary"
       style="min-height: 52px"
-      :style="{ background: 'var(--action)', color: 'var(--action-ink)' }"
     >{{ checking ? 'Проверяем…' : 'Войти' }}</button>
 
-    <p class="mt-4 text-center text-[0.6875rem] uppercase tracking-[0.2em]" :style="{ color: 'var(--text-muted)' }">
+    <p class="kh-eyebrow mt-4 text-center">
       Не заменяет врача
     </p>
   </form>
