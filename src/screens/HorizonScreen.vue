@@ -47,7 +47,7 @@ const ott = computed(() => props.life?.on_the_table || {})
   </div>
 
   <template v-else>
-    <div class="up-sec">Годы на столе</div>
+    <div class="up-sec">Экстра-годы</div>
     <section class="up-card">
       <div class="sum">
         <span class="big up-digit">+{{ ott.years }}</span>
@@ -74,7 +74,7 @@ const ott = computed(() => props.life?.on_the_table || {})
       </div>
 
       <p class="bound up-muted">
-        ⛔ Контур не назначает и не отменяет. Рычаг назван показателем; как его
+        [ВАЖНО] Контур не назначает и не отменяет. Рычаг назван показателем; как его
         двигать — разговор с врачом, а не с этим экраном.
       </p>
     </section>
@@ -86,6 +86,14 @@ const ott = computed(() => props.life?.on_the_table || {})
         <p class="fact">{{ n.fact }}</p>
         <p class="why up-muted"><b>Почему:</b> {{ n.why }}</p>
         <p class="why up-muted"><b>Вес:</b> {{ n.weight }}</p>
+        <!-- ⚠ У неучтённого фактора источники нужны СИЛЬНЕЕ, чем у учтённого
+             (Д-59). Учтённый виден в блоке «Откуда числа»; неучтённый не
+             виден нигде, и без ссылки «вес» превращается в мнение
+             ассистента. Здесь это особенно важно: семейное долголетие —
+             ровно тот фактор, про который легче всего поверить на слово. -->
+        <ul v-if="n.sources && n.sources.length" class="nsrc up-muted">
+          <li v-for="(s, i) in n.sources" :key="i">{{ s }}</li>
+        </ul>
       </div>
     </section>
 
@@ -117,7 +125,7 @@ const ott = computed(() => props.life?.on_the_table || {})
       </div>
       <p v-if="!reviewed.length" class="bound up-muted">
         Ни одного разбора пока не проведено. Первый закрасит первую неделю
-        в календаре. ⛔ Задним числом недели не закрашиваются — пустая неделя
+        в календаре. [ВАЖНО] Задним числом недели не закрашиваются — пустая неделя
         не упрёк, а единственный способ, которым счётчик остаётся правдой.
       </p>
       <div v-else class="weeks">
@@ -153,6 +161,8 @@ const ott = computed(() => props.life?.on_the_table || {})
 .ni h3 { margin: 0; font-size: 14.5px; font-weight: 600; }
 .fact { margin: 3px 0 0; font-size: 13px; }
 .why { margin: 5px 0 0; font-size: 12.5px; line-height: 1.45; }
+.nsrc { margin: 6px 0 0; padding-left: 16px; font-size: 11.5px; line-height: 1.4; }
+.nsrc li + li { margin-top: 3px; }
 
 .prov + .prov { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
 .ptop { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; font-weight: 600; }

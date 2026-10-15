@@ -2,6 +2,8 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import AccessGate from './components/AccessGate.vue'
 import AppShell from './components/AppShell.vue'
+import BottomSheet from './components/BottomSheet.vue'
+import BrandMark from './components/BrandMark.vue'
 import SurveySheet from './components/SurveySheet.vue'
 import ChargeScreen from './screens/ChargeScreen.vue'
 import DayScreen from './screens/DayScreen.vue'
@@ -55,13 +57,21 @@ const TABS = [
      владелец не мог вернуться на публичную страницу вообще никак — она
      показывалась только до входа, и единственным выходом была перезагрузка.
      «Горизонт» стоит первым, потому что это лицо продукта. */
-  { id: 'horizon', label: 'Горизонт', icon: 'charge', title: 'Успею' },
+  /* ⚠ Свой знак, а не батарея «Заряда»: с одинаковыми знаками две первые
+     вкладки различались только подписью, и палец промахивался. */
+  { id: 'horizon', label: 'Горизонт', icon: 'horizon', title: 'Успею' },
   { id: 'charge', label: 'Заряд', icon: 'charge', title: 'Заряд' },
   { id: 'day', label: 'День', icon: 'day', title: 'День' },
-  { id: 'systems', label: 'Системы', icon: 'systems', title: 'Системы' },
-  { id: 'progress', label: 'Прогресс', icon: 'progress', title: 'Прогресс' },
   { id: 'data', label: 'Данные', icon: 'data', title: 'Данные' },
 ]
+
+/* ⚠⚠ ЧЕТЫРЕ ВКЛАДКИ, А НЕ ШЕСТЬ (владелец, 30.08.2026). «Системы» и
+   «Прогресс» ушли из капсулы в плитки «Заряда»: шесть подписей по десять
+   пикселей в одной капсуле перестали читаться, и первыми перестали читаться
+   как раз те, что открывают реже всех. В капсуле осталось то, что открывают
+   каждый день; всё остальное — плиткой с живым числом на первом экране, что
+   даже заметнее иконки. */
+const OFF_TAB = ['systems', 'progress', 'risk']
 const active = ref('charge')
 const surveyOpen = ref(false)
 const surveyWeek = ref(null)
@@ -83,17 +93,17 @@ function signOut() {
 
 onMounted(loadPublic)
 
-/* ⚠ Тёмная тема системной шапки на входе и светлая внутри. Атрибут висит на
- * <html>, потому что цвет строки состояния берётся с фона документа, а не
- * с компонента. */
-/* ⚠ Тёмная тема — ТОЛЬКО на экране ввода пароля. Публичная страница светлая,
- * как и приложение: она витрина продукта, а не заслон. Раньше условием было
- * «не вошёл» — с появлением публичной страницы это красило бы её в чёрное. */
-watch([() => gate.authed.value, showGate], ([authed, gateOpen]) => {
-  const dark = !authed && gateOpen
-  document.documentElement.setAttribute('data-theme', dark ? 'auth-dark' : '')
+/* ⚠ ТЁМНОЙ ТЕМЫ БОЛЬШЕ НЕТ НИ НА ОДНОМ СОСТОЯНИИ (30.08.2026). Она красила
+ * полноэкранный вход; вход стал шторкой поверх светлой витрины, и чёрный фон
+ * под ней означал бы, что страница сменилась, тогда как она осталась. Набор
+ * `auth-dark` в `main.css` оставлен: он ещё пригодится, если вход когда-нибудь
+ * снова станет отдельным экраном, — но со старта его нужно СНЯТЬ, потому что
+ * `index.html` ставит его атрибутом ради правильного цвета строки состояния до
+ * загрузки приложения. */
+watch(() => gate.authed.value, () => {
+  document.documentElement.setAttribute('data-theme', '')
   const meta = document.querySelector('meta[name="theme-color"]')
-  if (meta) meta.setAttribute('content', dark ? '#0A0A0A' : '#F7F6F3')
+  if (meta) meta.setAttribute('content', '#F7F6F3')
 }, { immediate: true })
 
 const charge = computed(() => {
@@ -134,7 +144,7 @@ function saveSurvey(fields) {
 /* ⚠ «Риски» открываются плиткой с «Заряда», а не вкладкой: шесть пунктов в
    капсуле — уже предел, седьмой перестал бы читаться. Но заголовок в шапке
    ему нужен так же, как остальным, иначе экран выглядит подвешенным. */
-const OFF_TAB_TITLES = { risk: 'Контроль рисков' }
+const OFF_TAB_TITLES = { risk: 'Контроль рисков', systems: 'Системы', progress: 'Прогресс' }
 const shellTitle = computed(
   () => TABS.find((t) => t.id === active.value)?.title || OFF_TAB_TITLES[active.value] || '',
 )
@@ -159,12 +169,33 @@ onMounted(() => {
 </script>
 
 <template>
-  <!-- ═══ ПУБЛИЧНЫЙ СЛОЙ — без пароля (Д-41/Д-45) ═══ -->
-  <div v-if="!gate.authed.value && !showGate">
-    <div class="up-topbar">
-      <span class="up-brand">Успею</span>
-      <button type="button" class="up-enter" @click="showGate = true">Войти</button>
-    </div>
+  <!-- ═══ ПУБЛИЧНЫЙ СЛОЙ — без пароля (Д-41/Д-45) ═══
+       ⚠ ТА ЖЕ ОБОЛОЧКА, что и у контура, без вкладок и без крупного заголовка
+       в потоке. Слово «Успею» стоит на витрине ОДИН раз — крупно, в герое; в
+       липкой полосе оно появляется только когда герой уехал вверх. Раньше оно
+       стояло дважды и мелкая копия спорила с крупной. -->
+  <AppShell
+    v-if="!gate.authed.value"
+    :tabs="[]"
+    title="Успею"
+    :big-title="false"
+  >
+    <!-- ⚠ ЗНАК СТОИТ ЛЕВЕЕ «Войти», В ТОЙ ЖЕ ПРАВОЙ ГРУППЕ. Отдельным слоем
+         поверх полосы его класть нельзя: слой уже занят действием, а два
+         абсолютных элемента в одном углу начнут перекрываться на узких
+         экранах.
+
+         ⛔ Состояние `min` — ТОЛЬКО БУКВА. Проверено отрисовкой: в клетке
+         34 px цифры выходят по 5 пикселей и превращаются в пятно в углу,
+         которое читается как дефект отрисовки, а не как число. Клетка с
+         числом начинает работать примерно с 64 px. -->
+    <template #header-trailing>
+      <div class="up-trailing">
+        <BrandMark state="min" :size="34" />
+        <button type="button" class="up-enter" @click="showGate = true">Войти</button>
+      </div>
+    </template>
+
     <PublicScreen v-if="publicData && publicData.horizon" :pub="publicData" />
     <div v-else class="up-wrap up-state">
       <h1>Успею</h1>
@@ -173,26 +204,27 @@ onMounted(() => {
         Данные готовит контур командой <code>python3 tools/build_app_data.py</code>.
       </p>
     </div>
-  </div>
+  </AppShell>
 
-  <!-- ⚠ Кнопка выхода из гейта обязательна: без неё человек, нажавший
-       «Войти» из любопытства, заперт на экране пароля до перезагрузки.
-       Стоит НАД гейтом отдельным слоем, чтобы не трогать его вёрстку. -->
-  <button
-    v-else-if="!gate.authed.value"
-    type="button"
-    class="up-back"
-    @click="showGate = false"
-  >← Назад</button>
-  <AccessGate
-    v-if="!gate.authed.value && showGate"
-    :login="gate.login"
-    :checking="gate.checking.value"
-    :error="gate.error.value"
-    :notice="gate.notice.value"
-    :unsupported="gate.unsupported.value"
-    @submit="gate.submit"
-  />
+  <!-- ⚠ ВХОД — ШТОРКА ПОВЕРХ ВИТРИНЫ, а не отдельный экран (владелец,
+       30.08.2026). Отдельному экрану нужна была своя кнопка «Назад» и своя
+       тёмная тема, а витрина под ним пропадала целиком. У шторки выход общий
+       для всех окон приложения: фон, крестик, Escape — и учить ему отдельно
+       не нужно. -->
+  <BottomSheet
+    :open="!gate.authed.value && showGate"
+    title="Доступ в контур"
+    @close="showGate = false"
+  >
+    <AccessGate
+      :login="gate.login.value"
+      :checking="gate.checking.value"
+      :error="gate.error.value"
+      :notice="gate.notice.value"
+      :unsupported="gate.unsupported.value"
+      @submit="gate.submit"
+    />
+  </BottomSheet>
 
   <!-- ⚠ v-if, а НЕ v-else. Кнопка «Назад» между гейтом и оболочкой разорвала
        цепочку v-if/v-else-if/v-else, и `v-else` стал относиться к AccessGate:
@@ -207,7 +239,10 @@ onMounted(() => {
     :active="active"
     :title="shellTitle"
     :subtitle="shellSubtitle"
+    :big-title="active !== 'horizon'"
+    :back="OFF_TAB.includes(active)"
     @select="active = $event"
+    @back="active = 'charge'"
   >
     <!-- ⛔ ВЫХОД ОБЯЗАТЕЛЕН И СТОИТ НА КАЖДОМ ЭКРАНЕ. Его не было вовсе:
          войдя, человек оставался внутри до перезагрузки вкладки — а на
@@ -235,7 +270,11 @@ onMounted(() => {
     <template v-else>
       <!-- ⚠ ТА ЖЕ публичная страница, что видна до входа, а не её копия.
            Копия разошлась бы с оригиналом в первую же правку текста. -->
-      <PublicScreen v-if="active === 'horizon' && publicData && publicData.horizon" :pub="publicData" />
+      <!-- ⚠ `up-flush` снимает боковые поля витрины: внутри оболочки холст уже
+           отбит `px-5`, и без этого на вкладке «Горизонт» поля складывались
+           вдвое — на телефоне карточки становились ощутимо уже, чем на всех
+           остальных экранах. -->
+      <PublicScreen v-if="active === 'horizon' && publicData && publicData.horizon" :pub="publicData" class="up-flush" />
       <ChargeScreen
         v-else-if="active === 'charge'"
         :data="data"

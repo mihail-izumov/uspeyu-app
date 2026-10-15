@@ -18,6 +18,8 @@
  * добавляет -webkit-backdrop-filter, без которого на iOS Safari размытие не
  * рисуется вовсе.
  */
+import TabIcon from './TabIcon.vue'
+
 defineProps({
   tabs: { type: Array, required: true },
   active: { type: String, default: '' },
@@ -44,54 +46,11 @@ defineEmits(['select'])
       :style="active === tab.id ? { background: 'var(--nav-accent)' } : {}"
       @click="$emit('select', tab.id)"
     >
-      <svg
-        viewBox="0 0 24 24"
+      <TabIcon
+        :icon="tab.icon"
         class="h-[20px] w-[20px]"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.7"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        aria-hidden="true"
         :style="{ color: active === tab.id ? 'var(--nav-accent-ink)' : 'var(--nav-muted)' }"
-      >
-        <!-- «Заряд»: батарея с молнией. Метафора заряда/расхода — то же, что
-             у Body Battery, и знак обязан её повторять, иначе шкала 0–100
-             читается как оценка, а не как запас. -->
-        <template v-if="tab.icon === 'charge'">
-          <rect x="2.5" y="7" width="15" height="10" rx="2.5" />
-          <path d="M20.5 10.5v3" />
-          <path d="M10.6 9.4 8.2 12.6h3.2l-1.4 2.4" />
-        </template>
-        <!-- «День»: капсула. Знак вещества, а не календаря: вкладка про то,
-             что попадает внутрь, а календарный лист обещал бы расписание. -->
-        <template v-else-if="tab.icon === 'day'">
-          <path d="M8.2 15.8 15.8 8.2a3.9 3.9 0 0 0-5.5-5.5L2.7 10.3a3.9 3.9 0 0 0 5.5 5.5z" />
-          <path d="M6 6l5.5 5.5" />
-          <path d="M17 14v6M14 17h6" />
-        </template>
-        <!-- «Системы»: сердце в контуре — органы-мишени. -->
-        <template v-else-if="tab.icon === 'systems'">
-          <path d="M12 20s-6.5-4.2-6.5-9A3.6 3.6 0 0 1 12 8.6a3.6 3.6 0 0 1 6.5 2.4c0 4.8-6.5 9-6.5 9z" />
-          <path d="M3 13.4h3l1.2-2 1.6 3.4 1.3-2.2" />
-        </template>
-        <!-- «Прогресс»: ряд недель. Столбики, а не линия: неделя — дискретна,
-             и линия обещала бы, что между отметками что-то измерялось. -->
-        <template v-else-if="tab.icon === 'progress'">
-          <path d="M4 20V13" />
-          <path d="M9 20V8.5" />
-          <path d="M14 20v-5" />
-          <path d="M19 20V4.5" />
-        </template>
-        <!-- «Данные»: слои архива с пробелом. -->
-        <template v-else>
-          <path d="M4 7c0-1.4 3.6-2.5 8-2.5S20 5.6 20 7s-3.6 2.5-8 2.5S4 8.4 4 7z" />
-          <path d="M4 12c0 1.4 3.6 2.5 8 2.5 1.4 0 2.7-.1 3.8-.3" />
-          <path d="M4 7v10c0 1.4 3.6 2.5 8 2.5" />
-          <path d="M20 7v4" />
-          <path d="M18.5 15.5v2.2M18.5 20.2v.1" />
-        </template>
-      </svg>
+      />
       <span
         class="kh-caps text-[0.625rem] uppercase"
         style="--caps-track: 0.06em"

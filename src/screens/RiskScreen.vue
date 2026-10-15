@@ -57,7 +57,7 @@ const KPI = computed(() => [
     c: acc.value.open ? 'watch' : 'ok', s: 'открыта = исход ещё не записан' },
   { t: 'Самой старой точке', v: r.value.oldest_days == null ? '—' : `${r.value.oldest_days} дн`,
     c: (r.value.oldest_days || 0) > 548 ? 'alarm' : 'ok', s: 'граница доверия — 18 месяцев' },
-  { t: 'Годы на столе', v: `+${life.value.on_table ?? '—'}`,
+  { t: 'Экстра-годы', v: `+${life.value.on_table ?? '—'}`,
     c: 'unknown', s: `горизонт ${life.value.current || '—'} → ${life.value.target || '—'}` },
 ])
 
@@ -107,7 +107,7 @@ const METH = [
    'Читать пороги и расстояние до целей, а не искать процент риска.'],
   ['Горизонт — среднее, а не срок',
    'Вилка лет описывает профиль с такими факторами. Половина людей такого профиля живёт дольше верхней границы.',
-   'Смотреть на разность вилок («годы на столе»): в ней сокращаются систематические ошибки модели.'],
+   'Смотреть на разность вилок («экстра-годы»): в ней сокращаются систематические ошибки модели.'],
 ]
 </script>
 
@@ -193,7 +193,7 @@ const METH = [
         </details>
       </div>
       <p class="mt-2 text-[0.75rem] leading-snug" :style="{ color: 'var(--text-muted)' }">
-        ⛔ Красный не означает болезнь: он означает показатель вне личной цели,
+        [ВАЖНО] Красный не означает болезнь: он означает показатель вне личной цели,
         уход от цели или пробел там, где пробела быть не должно.
       </p>
     </section>
@@ -331,7 +331,7 @@ const METH = [
           <span class="text-[0.9375rem] font-semibold tabular-nums">{{ life.target }}</span>
         </div>
         <div class="flex items-baseline justify-between gap-3 py-1">
-          <span class="text-[0.875rem]" :style="{ color: 'var(--text-muted)' }">Годы на столе</span>
+          <span class="text-[0.875rem]" :style="{ color: 'var(--text-muted)' }">Экстра-годы</span>
           <span class="text-[0.9375rem] font-semibold tabular-nums">
             +{{ life.on_table }}
             <span class="text-[0.6875rem] font-normal" :style="{ color: 'var(--text-muted)' }">
@@ -354,7 +354,7 @@ const METH = [
           </p>
         </div>
         <p class="mt-2 text-[0.75rem] leading-snug" :style="{ color: 'var(--text-muted)' }">
-          ⛔ Рычаг назван показателем, а не действием: путь к цели — врач.
+          [ВАЖНО] Рычаг назван показателем, а не действием: путь к цели — врач.
           Вилка — среднее ожидание для профиля, а не срок человека.
         </p>
       </div>
@@ -397,7 +397,7 @@ const METH = [
     </section>
 
     <p class="text-[0.75rem] leading-snug" :style="{ color: 'var(--text-muted)' }">
-      ⛔ Экран не назначает и не отменяет ничего — он показывает, что видно в данных,
+      [ВАЖНО] Экран не назначает и не отменяет ничего — он показывает, что видно в данных,
       и к кому с этим идти. Вероятностей заболеваний контур не выпускает (канон Р-2).
       Тот же прогон одной страницей на компьютере — <code>apps/risk/health-risk.html</code>.
     </p>

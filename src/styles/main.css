@@ -74,14 +74,40 @@
        review — неделя, закрытая воскресным разбором;
        lived  — прожита без разбора;
        ahead  — впереди, в пределах текущей вилки;
-       target — впереди, между текущей и целевой: то, что «на столе».
+       target — впереди, между текущей и целевой: экстра-годы.
      ⛔ Зелёный здесь НЕ светофорный `--sig-ok`: тот означает «показатель в
      цели», а этот — «неделя закрыта». Один цвет на два разных смысла в
+     приложении, где светофор несущий, — прямой путь к ошибке чтения.
+
+     ⚠⚠ ПАЛИТРА ПЕРЕСОБРАНА 30.08.2026 (владелец: «непонятно, как читать»).
+     Прежняя была бежево-серой во всех четырёх тонах, и сетка не сообщала
+     ничего. Теперь тона взяты из РАЗНЫХ семейств, и у каждого — своя работа:
+
+       lived  СИНИЙ  — прожито. Насыщенный: это самая большая и самая
+              достоверная часть картины, и она заслуживает цвета.
+       review ЗЕЛЁНЫЙ — неделя, закрытая разбором. Синее становится зелёным
+              по мере работы — единственное движение цвета, которое человек
+              делает своими руками.
+       ahead  БЛЕДНО-СИНИЙ — впереди, при текущих данных. Тот же синий, но
+              ещё не прожитый: родство цвета говорит «это те же годы».
+       target ФИОЛЕТОВЫЙ — ЭКСТРА-ГОДЫ: недели между текущим и целевым
+              сценарием. ⚠ Был жёлтым; владелец 30.08.2026 попросил красный
+              или фиолетовый. Взят фиолетовый: КРАСНЫЙ В ЭТОМ ПРИЛОЖЕНИИ
+              ЗАНЯТ — это верхняя ступень светофора «есть отклонение», и
+              покрасить им годы, которые можно ВЫИГРАТЬ, значило бы сказать
+              ровно обратное тому, что имеется в виду. Фиолетовый не занят
+              ничем и читается как «другая природа», а не как тревога.
+
+     ⛔ КРАСНЫМ НЕ ЗАЛИВАЕТСЯ НИ ОДНА НЕДЕЛЯ. Заливка означала бы «эти недели
+     плохие», а таких данных у контура нет и быть не может.
+
+     ⚠ Зелёный календаря НЕ равен светофорному `--sig-ok`: тот означает
+     «показатель в цели», этот — «неделя закрыта». Один цвет на два смысла в
      приложении, где светофор несущий, — прямой путь к ошибке чтения. */
-  --wk-review: #1F7A43;
-  --wk-lived: #C7C4BB;
-  --wk-ahead: #E3E1DB;
-  --wk-target: #EFEDE7;
+  --wk-review: #16A34A;
+  --wk-lived: #2563EB;
+  --wk-ahead: #BBD1F7;
+  --wk-target: #7C3AED;
 
   --sheet: #F7F6F3;
   --ink-on-color: #FFFFFF;
@@ -265,7 +291,16 @@
    что этими классами верстается ПУБЛИЧНАЯ половина, а не медкарта. Внутри
    приложения вёрстка своя, на Tailwind, и смешивать их не нужно.
    ═══════════════════════════════════════════════════════════════════════ */
-.up-wrap { max-width: 640px; margin: 0 auto; padding: 0 18px 120px; }
+/* ⚠ ШИРИНА ОДНА НА ОБА СЛОЯ — 430px (правка 30.08.2026, образец — gderost).
+   Витрина держала 640px, приложение 34rem (544px): на десктопе вход в контур
+   заметно сужал страницу, будто человек попал в другой продукт, а на телефоне
+   витринные карточки считали ширину от чужого предела и поля читались уже
+   приложенческих. 430px — ширина iPhone Pro Max: на телефоне это край в край,
+   на десктопе — та же колонка, что и внутри. */
+.up-wrap { max-width: 430px; margin: 0 auto; padding: 0 20px 120px; }
+/* Витрина, показанная ВНУТРИ оболочки (вкладка «Горизонт»): поля уже отбиты
+   холстом приложения, свои — снять, иначе они складываются вдвое. */
+.up-wrap.up-flush { padding-left: 0; padding-right: 0; padding-bottom: 20px; }
 .up-card {
   background: var(--surface); border: 1px solid var(--line);
   border-radius: 20px; padding: 18px;
@@ -277,24 +312,66 @@
 }
 .up-digit { font-variant-numeric: tabular-nums; }
 
-/* Шапка публичной страницы: имя продукта и вход. Отдельно от AppShell —
-   до входа приложения ещё нет, есть витрина. */
-.up-topbar {
-  display: flex; align-items: center; justify-content: space-between;
-  max-width: 640px; margin: 0 auto;
-  padding: calc(env(safe-area-inset-top) + 14px) 18px 0;
-}
-.up-brand { font-size: 15px; font-weight: 700; letter-spacing: -.01em; }
+/* ⚠ КНОПКА ВХОДА — ЗАЛИВКА, А НЕ ОБВОДКА (правка 30.08.2026). Обведённая
+   капсула с синим текстом на белом фоне читалась как второстепенное действие
+   («может быть, потом»), хотя это единственный вход в продукт. Заливка
+   `--action` ставит её в тот же ряд, что и главные кнопки внутри контура. */
 .up-enter {
-  border: 1px solid var(--line); background: var(--surface); color: var(--action-text);
-  padding: 7px 14px; border-radius: 999px; font-size: 13px; font-weight: 600; cursor: pointer;
+  border: 0; background: var(--action); color: var(--action-ink);
+  padding: 8px 16px; border-radius: 999px; font-size: 13px; font-weight: 600; cursor: pointer;
 }
+.up-enter:active { opacity: .85; }
+
+/* ⚠ ЗНАК И «Войти» — ОДНА ПРАВАЯ ГРУППА. Полоса шапки высотой 44 точки, и
+   знак в 34 px оставляет по 5 сверху и снизу: больше делать нельзя, полоса
+   начнёт распирать. Зазор 10 — знак и капсула не должны слипаться в одно
+   пятно, иначе знак читается как иконка кнопки. */
+.up-trailing { display: flex; align-items: center; gap: 10px; }
 .up-state { padding-top: 60px; text-align: center; }
 .up-state h1 { font-size: 30px; margin: 0 0 10px; }
 .up-small { font-size: 12px; margin-top: 10px; }
-.up-back {
-  position: fixed; z-index: 30;
-  top: calc(env(safe-area-inset-top) + 12px); left: 14px;
-  border: 0; background: transparent; color: var(--text-secondary);
-  font-size: 14px; padding: 8px 10px; cursor: pointer;
+
+/* Баннер-строка: раздел, свёрнутый до одной строки со стрелкой. Раскрывается
+   шторкой. ⚠ Баннер ОБЯЗАН нести подпись, а не одно название: строка «Метод →»
+   не говорит, что за ней, и её не открывают. */
+.up-banner {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 16px; padding: 14px 16px; cursor: pointer; text-align: left;
+  color: var(--text); font: inherit;
 }
+.up-banner:active { background: var(--surface-hover); }
+.up-banner .bt { font-size: 15px; font-weight: 600; }
+.up-banner .bs { margin: 2px 0 0; font-size: 12.5px; color: var(--text-muted); line-height: 1.35; }
+.up-banner .arw { flex: 0 0 auto; color: var(--text-muted); }
+
+/* Бабл: капсула-контрол на витрине (выбор протокола, номер версии). */
+.up-bubble {
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 1px solid var(--line); background: var(--surface); color: var(--text);
+  border-radius: 999px; padding: 7px 12px; font-size: 13.5px; font-weight: 600;
+  cursor: pointer; font-family: inherit;
+}
+.up-bubble:active { background: var(--surface-hover); }
+
+/* Круглая кнопка рядом с баблом (письмо протокола). */
+.up-round {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px; flex: 0 0 36px; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--surface); color: var(--action-text);
+  cursor: pointer;
+}
+.up-round:active { background: var(--surface-hover); }
+
+/* Поле ввода витрины. ⛔ Ошибка ввода печатается словом под полем, а не одной
+   красной рамкой: рамка сообщает, что что-то не так, но не что именно. */
+.up-field {
+  width: 100%; box-sizing: border-box;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+  padding: 13px 14px; font-size: 16px; font-family: inherit; color: var(--text);
+}
+/* ⚠ 16px, а не меньше: Safari на iOS зумит страницу при фокусе на поле с
+   кеглем ниже шестнадцати, и после ввода почты витрина остаётся увеличенной. */
+.up-field::placeholder { color: var(--placeholder); }
+.up-field:focus { outline: 2px solid var(--action); outline-offset: -2px; }
+.up-field.bad { border-color: var(--sig-alarm); }

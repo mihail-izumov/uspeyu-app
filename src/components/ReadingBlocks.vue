@@ -68,10 +68,26 @@ const parsed = computed(() => props.sections.map((s) => ({
 </script>
 
 <template>
-  <div v-for="(s, i) in parsed" :key="i" class="sec">
-    <h3>{{ s.title }}</h3>
+  <!-- ⚠⚠ ВЁРСТКА ПЕРЕНЕСЕНА ИЗ РАЗДЕЛА «УЛЬТРА» gderost
+       (`app/src/components/ultra/UltraChapter.vue`), 30.08.2026. Прежняя была
+       компактной справкой: заголовок 15px, абзац 13,5px, секции разделены
+       тонкой линией. На длинном объяснении это читается сплошной серой
+       простынёй — а «Как читать» и есть самое длинное чтение витрины.
+
+       Что перенесено дословно и почему:
+        · ТРИ ступени размера вместо двух: eyebrow-номер, заголовок 26px,
+          текст 15px. Между заголовком и текстом должен быть скачок, иначе
+          глазу не за что зацепиться при перелистывании;
+        · ЧЕРЕДОВАНИЕ ХОЛСТА И СЛОЯ вместо разделительных линий — в оригинале
+          прямо записано: «без него одиннадцать одинаковых блоков читаются
+          одним нескончаемым». Линия отделяет, но не даёт ритма;
+        · ВОЗДУХ 44px сверху и снизу секции. Это база, работает всегда;
+        · ПЕРВЫЙ АБЗАЦ — ведущий: крупнее и темнее остальных. -->
+  <div v-for="(s, i) in parsed" :key="i" class="sec" :class="{ raised: i % 2 === 1 }">
+    <span class="eyebrow kh-caps">Шаг {{ i + 1 }}</span>
+    <h3 class="kh-balance">{{ s.title }}</h3>
     <template v-for="(b, j) in s.blocks" :key="j">
-      <p v-if="b.kind === 'p'" v-html="b.html"></p>
+      <p v-if="b.kind === 'p'" :class="{ lead: j === 0 }" v-html="b.html"></p>
       <ul v-else-if="b.kind === 'list'">
         <li v-for="(it, k) in b.items" :key="k" v-html="it"></li>
       </ul>
@@ -88,17 +104,36 @@ const parsed = computed(() => props.sections.map((s) => ({
 </template>
 
 <style scoped>
-.sec + .sec { margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--line); }
-h3 { font-size: 15.5px; margin-bottom: 8px; }
-p { margin: 0 0 9px; font-size: 13.5px; line-height: 1.55; color: var(--text-secondary); }
-p:last-child { margin-bottom: 0; }
-ul { margin: 0 0 9px; padding-left: 18px; }
-li { font-size: 13.5px; line-height: 1.5; color: var(--text-secondary); margin-bottom: 4px; }
+.sec { padding: 30px 0; }
+.sec:first-child { padding-top: 6px; }
+.sec:last-child { padding-bottom: 8px; }
+/* Поднятая секция уходит на всю ширину шторки и красится слоем. Отступ в
+   20px совпадает с полем шторки и полем витрины — если одно изменится,
+   изменить и здесь, иначе фон поедет ступенькой. */
+.sec.raised {
+  margin: 0 -20px; padding: 30px 20px;
+  background: var(--surface);
+}
+.eyebrow {
+  display: block; font-size: 12px; text-transform: uppercase;
+  color: var(--text-muted); --caps-track: .14em;
+}
+h3 {
+  margin: 12px 0 0; font-size: 26px; font-weight: 700;
+  line-height: 1.12; letter-spacing: -.02em; color: var(--text);
+}
+p { margin: 14px 0 0; font-size: 15px; line-height: 1.62; color: var(--text-secondary); }
+/* Ведущий абзац — тот, ради которого секцию открывают: он темнее и чуть
+   крупнее, и по нему одному можно понять, о чём весь блок. */
+p.lead { color: var(--text); font-size: 15.5px; text-wrap: pretty; }
+ul { margin: 14px 0 0; padding-left: 20px; }
+li { font-size: 15px; line-height: 1.55; color: var(--text-secondary); margin-bottom: 7px; }
+li:last-child { margin-bottom: 0; }
 /* Таблица шире экрана скроллится внутри своего контейнера, а не тащит
    за собой всю страницу вбок. */
-.tw { overflow-x: auto; margin: 0 0 10px; }
-table { border-collapse: collapse; width: 100%; font-size: 12.5px; }
-th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.tw { overflow-x: auto; margin: 16px 0 0; }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
 th { color: var(--text-muted); font-weight: 500; }
-code { font-size: 12px; background: var(--surface-2); padding: 1px 4px; border-radius: 4px; }
+code { font-size: 13px; background: var(--surface-2); padding: 1px 5px; border-radius: 5px; }
 </style>

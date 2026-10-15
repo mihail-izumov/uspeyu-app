@@ -1,6 +1,7 @@
 import { ref } from 'vue'
-import { LOGIN, PASSCODE_HASH, PASSCODE_SALT, PASSCODE_ITERATIONS, SESSION_TTL_MS } from '../config.js'
+import { PASSCODE_HASH, PASSCODE_SALT, PASSCODE_ITERATIONS, SESSION_TTL_MS } from '../config.js'
 import { setDataKey } from './useData.js'
+import { useProfile } from './useProfile.js'
 
 /* ═══════════════════════════════════════════════════════════════════════
    ГЕЙТ ВХОДА
@@ -136,5 +137,9 @@ export function useGate() {
     notice.value = reason || null
   }
 
-  return { login: LOGIN, authed, ready, checking, error, notice, unsupported, submit, logout }
+  /* Логин — подпись выбранного протокола, а не второй фактор: проверяется
+     только фраза, она же выводит ключ данных. */
+  const { login } = useProfile()
+
+  return { login, authed, ready, checking, error, notice, unsupported, submit, logout }
 }

@@ -4,7 +4,7 @@ import ChargeDial from '../components/ChargeDial.vue'
 import StatusChip from '../components/StatusChip.vue'
 import BottomSheet from '../components/BottomSheet.vue'
 import { WEIGHTS, deltaLabel } from '../composables/chargeModel.js'
-import { humanAge, ageDays, fmtDate } from '../composables/useData.js'
+import { humanAge, ageDays, fmtDate, plural } from '../composables/useData.js'
 
 const props = defineProps({
   data: { type: Object, required: true },
@@ -17,15 +17,82 @@ const emit = defineEmits(['open-survey', 'open-system', 'go'])
 
 const breakdownOpen = ref(false)
 
-/* Плитки разделов. Подпись — не пересказ названия, а то, зачем туда идти:
-   иначе плитка повторяет иконку в капсуле и не добавляет ничего. */
-const SECTIONS = [
-  { id: 'horizon', label: 'Горизонт', hint: 'вилка лет, рычаги, календарь недель' },
-  { id: 'day', label: 'День', hint: 'плановый приём и отметка события' },
-  { id: 'systems', label: 'Системы', hint: 'шесть органов-мишеней и их показатели' },
-  { id: 'progress', label: 'Прогресс', hint: 'недели, ряд «Заряда», разборы' },
-  { id: 'data', label: 'Данные', hint: 'пробелы, просрочки, препараты, задачи' },
-]
+/* ⚠⚠ ПЛИТКИ — ЕДИНСТВЕННЫЙ ВХОД В РАЗДЕЛЫ, КОТОРЫХ НЕТ В КАПСУЛЕ (владелец,
+   30.08.2026). «Горизонт» и «День» отсюда убраны: они стоят вкладками, и
+   плитка дублировала бы соседний орган управления в двух шагах от него.
+   Остались «Системы», «Прогресс», «Контроль рисков» и «Данные».
+
+   ⛔ ПЛИТКА НЕСЁТ ЖИВОЕ ЧИСЛО, А НЕ ОПИСАНИЕ. Строка «шесть органов-мишеней
+   и их показатели» пересказывала название и не сообщала ничего: открывать её
+   или нет, человек решить не мог. Число «3 системы в тревоге» решает за одну
+   секунду — ради этого экран и открывают.
+
+   ⚠ Плитки КВАДРАТНЫЕ и одного размера — сетка читается как приборная
+   панель. Разновысокие карточки заставляют сравнивать их между собой по
+   размеру, хотя размер тут ничего не значит. */
+/* ⚠⚠ ОТКРЫТОСТЬ ТРЕВОГИ ЧИТАЕТСЯ ИЗ ПОЛЯ `open` В `risk.alerts`, А НЕ ПО
+   ПУСТОМУ `outcome`. Первый заход считал открытыми те, у кого нет исхода, — и
+   получил ноль открытых при четырёх настоящих: `outcome` заполнен почти
+   везде, потому что в журнале туда пишут и ЗАПЛАНИРОВАННЫЙ исход («тест
+   отрицательный → тревога закрыта»), а не только состоявшийся. Плитка
+   показывала бы «0 тревог» на экране, где их четыре, — то есть врала бы
+   ровно в ту сторону, в которую опаснее всего. */
+const openAlertList = computed(() => ((props.data.risk && props.data.risk.alerts) || []).filter((a) => a.open))
+
+const organs = computed(() => (props.data.risk && props.data.risk.organs) || [])
+const organsRed = computed(() => organs.value.filter((o) => o.light === '🔴').length)
+const organsWatch = computed(() => organs.value.filter((o) => o.light === '🟡').length)
+
+const activeTasks = computed(() => (props.data.tasks || []).filter((t) => t.status !== 'Готово').length)
+const gapsCount = computed(() => (props.data.therapy_gaps || []).length)
+const weeksCount = computed(() => (props.data.weekly || []).length)
+
+/** Тон плитки: цвет + слово всегда вместе, цвет никогда не единственный. */
+function tone(level) {
+  if (level === 'alarm') return { ink: 'var(--sig-alarm)', fill: 'var(--sig-alarm-fill)' }
+  if (level === 'watch') return { ink: 'var(--sig-watch)', fill: 'var(--sig-watch-fill)' }
+  if (level === 'ok') return { ink: 'var(--sig-ok)', fill: 'var(--sig-ok-fill)' }
+  return { ink: 'var(--sig-unknown)', fill: 'var(--sig-unknown-fill)' }
+}
+
+const TILES = computed(() => [
+  {
+    id: 'systems',
+    label: 'Системы',
+    value: organsRed.value || organsWatch.value || organs.value.length,
+    unit: organsRed.value
+      ? `из ${organs.value.length} в тревоге`
+      : (organsWatch.value ? `из ${organs.value.length} под наблюдением` : 'систем в норме'),
+    level: organsRed.value ? 'alarm' : (organsWatch.value ? 'watch' : 'ok'),
+    note: organsRed.value ? 'красный светофор' : (organsWatch.value ? 'жёлтый светофор' : 'зелёный светофор'),
+  },
+  {
+    id: 'risk',
+    label: 'Контроль рисков',
+    value: openAlertList.value.length,
+    unit: openAlertList.value.length ? 'тревог без исхода' : 'открытых тревог',
+    level: openAlertList.value.length ? 'alarm' : 'ok',
+    note: `полнота картины ${(props.data.risk && props.data.risk.fullness) || 0}%`,
+  },
+  {
+    id: 'progress',
+    label: 'Прогресс',
+    value: weeksCount.value,
+    unit: weeksCount.value === 1 ? 'неделя в ряду' : 'недель в ряду',
+    level: weeksCount.value ? 'ok' : 'unknown',
+    note: weeksCount.value ? 'ряд «Заряда» и разборы' : 'ряд ещё не начат',
+  },
+  {
+    id: 'data',
+    label: 'Данные',
+    value: activeTasks.value,
+    unit: 'активных задач',
+    level: gapsCount.value ? 'watch' : 'unknown',
+    note: gapsCount.value
+      ? `${gapsCount.value} ${plural(gapsCount.value, 'пробел', 'пробела', 'пробелов')} на фоне терапии`
+      : 'пробелы, просрочки, препараты',
+  },
+])
 
 /* Дельта берётся против ПРЕДЫДУЩЕЙ недели ряда, а не против «прошлого
  * запуска приложения». Иначе балл менялся бы от того, что человек открыл
@@ -44,7 +111,13 @@ const counted = computed(() =>
 )
 const skipped = computed(() => props.charge.parts.filter((p) => p.points === null))
 
-const openAlerts = computed(() => (props.data.alerts || []).slice(0, 3))
+/* ⛔ Здесь тоже ТОЛЬКО ОТКРЫТЫЕ. Раньше брались первые три из всех подряд —
+   и в разделе «Открытые тревоги» стояли закрытые: заголовок обещал одно,
+   список показывал другое. Карточка берётся из `data.alerts` (там есть
+   орган и адресат-врач), а признак открытости — из `risk.alerts`. */
+const openCodes = computed(() => new Set(openAlertList.value.map((a) => a.code)))
+const openAlerts = computed(() =>
+  (props.data.alerts || []).filter((a) => openCodes.value.has(a.code)).slice(0, 3))
 
 const lastDrawAge = computed(() => ageDays(props.data.last_draw))
 </script>
@@ -138,39 +211,46 @@ const lastDrawAge = computed(() => ageDays(props.data.last_draw))
     <section>
       <h2 class="mb-2 font-label text-[0.75rem] uppercase tracking-[0.14em]"
           :style="{ color: 'var(--text-muted)' }">Разделы</h2>
-      <div class="grid grid-cols-2 gap-3">
-        <button
-          v-for="s in SECTIONS"
-          :key="s.id"
-          type="button"
-          class="rounded-[18px] border px-4 py-4 text-left active:opacity-90"
-          :style="{ background: 'var(--surface)', borderColor: 'var(--rim)', boxShadow: 'var(--card-shadow)' }"
-          @click="emit('go', s.id)"
-        >
-          <p class="text-[0.9375rem] font-semibold">{{ s.label }}</p>
-          <p class="mt-1 text-[0.8125rem] leading-snug" :style="{ color: 'var(--text-muted)' }">{{ s.hint }}</p>
-        </button>
-      </div>
 
       <!-- ⛔ «Риски» — ЭКРАН, а не ссылка на apps/risk/health-risk.html.
            Тот файл открытый, и в публичном репозитории он означал бы
            выложенные наружу тревоги и показатели. На телефоне его к тому же
            просто нет: он живёт на машине владельца. Здесь те же данные, но
            из health.json, то есть за входом. -->
-      <button
-        type="button"
-        class="mt-3 flex w-full items-center justify-between rounded-[18px] border px-5 py-4 text-left active:opacity-90"
-        :style="{ background: 'var(--surface)', borderColor: 'var(--rim)', boxShadow: 'var(--card-shadow)' }"
-        @click="emit('go', 'risk')"
-      >
-        <span>
-          <span class="block text-[0.9375rem] font-semibold">Контроль рисков</span>
-          <span class="mt-1 block text-[0.8125rem]" :style="{ color: 'var(--text-muted)' }">
-            светофор органов, тревоги с исходами, точность контура
+      <div class="grid grid-cols-2 gap-3">
+        <button
+          v-for="t in TILES"
+          :key="t.id"
+          type="button"
+          class="flex aspect-square flex-col justify-between rounded-[18px] border p-4 text-left active:opacity-90"
+          :style="{ background: 'var(--surface)', borderColor: 'var(--rim)', boxShadow: 'var(--card-shadow)' }"
+          @click="emit('go', t.id)"
+        >
+          <span class="flex w-full items-start justify-between gap-2">
+            <span class="text-[0.9375rem] font-semibold leading-snug">{{ t.label }}</span>
+            <!-- Точка состояния. Цвет здесь не единственный носитель: под
+                 числом стоит слово, называющее то же самое. -->
+            <span
+              class="mt-1 block h-2.5 w-2.5 shrink-0 rounded-full"
+              :style="{ background: tone(t.level).ink }"
+              aria-hidden="true"
+            ></span>
           </span>
-        </span>
-        <span class="ml-3 shrink-0 text-[1.25rem]" :style="{ color: 'var(--text-muted)' }">›</span>
-      </button>
+
+          <span class="block">
+            <span
+              class="kh-digit block text-[2rem] font-bold tabular-nums leading-none"
+              :style="{ color: tone(t.level).ink }"
+            >{{ t.value }}</span>
+            <span class="mt-1.5 block text-[0.8125rem] leading-snug" :style="{ color: 'var(--text-secondary)' }">
+              {{ t.unit }}
+            </span>
+            <span class="mt-0.5 block text-[0.75rem] leading-snug" :style="{ color: 'var(--text-muted)' }">
+              {{ t.note }}
+            </span>
+          </span>
+        </button>
+      </div>
     </section>
 
     <!-- ═══ ВОСКРЕСНАЯ ОТМЕТКА ═══ -->

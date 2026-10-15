@@ -350,7 +350,7 @@ function tagTitle(tag) {
         </ul>
 
         <p class="mt-6 text-[0.8125rem] leading-relaxed" :style="{ color: 'var(--text-muted)' }">
-          ⛔ Это подготовка к разговору, а не заключение. Решения — в кабинете.
+          [ВАЖНО] Это подготовка к разговору, а не заключение. Решения — в кабинете.
         </p>
       </template>
     </BottomSheet>
@@ -473,7 +473,7 @@ function tagTitle(tag) {
     <!-- ═══ ПРЕПАРАТЫ ═══ -->
     <template v-else-if="tab === 'meds'">
       <p class="kh-balance text-[0.8125rem] leading-relaxed" :style="{ color: 'var(--text-muted)' }">
-        ⛔ Контур не назначает и не отменяет. Этот список — память, а не рецепт.
+        [ВАЖНО] Контур не назначает и не отменяет. Этот список — память, а не рецепт.
       </p>
       <div class="flex flex-col gap-2">
         <button
@@ -636,7 +636,7 @@ function tagTitle(tag) {
       </p>
 
       <p class="kh-balance px-1 pb-2 text-[0.8125rem] leading-relaxed" :style="{ color: 'var(--text-muted)' }">
-        ⛔ Приложение не закрывает задачи. «Готово» ставится в контуре, когда результат
+        [ВАЖНО] Приложение не закрывает задачи. «Готово» ставится в контуре, когда результат
         внесён в мастер, — не когда сходил.
       </p>
     </template>
@@ -646,7 +646,7 @@ function tagTitle(tag) {
       <section>
         <p class="text-[0.8125rem] leading-relaxed" :style="{ color: 'var(--text-muted)' }">
           Развёрнутые ответы контура — дословно, как были даны в разговоре.
-          ⛔ Ни один из них не является назначением: контур не назначает и не отменяет.
+          [ВАЖНО] Ни один из них не является назначением: контур не назначает и не отменяет.
         </p>
       </section>
 
@@ -729,7 +729,7 @@ function tagTitle(tag) {
         </p>
         <ReadingBlocks :sections="openAnswerSections" />
         <p class="mt-5 text-[0.8125rem] leading-relaxed" :style="{ color: 'var(--text-muted)' }">
-          ⛔ Ответ приведён дословно и задним числом не переписывается. Если он устарел,
+          [ВАЖНО] Ответ приведён дословно и задним числом не переписывается. Если он устарел,
           в ряду появляется новая запись, а эта помечается. Решения принимает врач.
         </p>
       </template>
@@ -768,7 +768,7 @@ function tagTitle(tag) {
           </div>
         </dl>
         <p class="mt-4 text-[0.8125rem] leading-relaxed" :style="{ color: 'var(--text-muted)' }">
-          ⛔ Отсюда задачу нельзя закрыть, перенести или изменить: реестр —
+          [ВАЖНО] Отсюда задачу нельзя закрыть, перенести или изменить: реестр —
           workspace/ЗАДАЧИ.md, и статус в нём меняется по подтверждению владельца.
         </p>
       </template>
@@ -806,7 +806,7 @@ function tagTitle(tag) {
           :style="{ background: 'var(--sig-alarm-fill)', color: 'var(--sig-alarm-ink)' }"
         >{{ medDetail.warn }}</p>
         <p class="mt-4 text-[0.8125rem] leading-relaxed" :style="{ color: 'var(--text-muted)' }">
-          ⛔ Ничего из написанного не является указанием начать, отменить или изменить приём.
+          [ВАЖНО] Ничего из написанного не является указанием начать, отменить или изменить приём.
           Подробная справка по препарату — в контуре, в meds/spravki/.
         </p>
       </template>
