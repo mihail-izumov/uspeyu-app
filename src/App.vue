@@ -3,7 +3,6 @@ import { computed, onMounted, ref, watch } from 'vue'
 import AccessGate from './components/AccessGate.vue'
 import AppShell from './components/AppShell.vue'
 import BottomSheet from './components/BottomSheet.vue'
-import BrandMark from './components/BrandMark.vue'
 import SurveySheet from './components/SurveySheet.vue'
 import ChargeScreen from './screens/ChargeScreen.vue'
 import DayScreen from './screens/DayScreen.vue'
@@ -11,6 +10,7 @@ import SystemsScreen from './screens/SystemsScreen.vue'
 import ProgressScreen from './screens/ProgressScreen.vue'
 import DataScreen from './screens/DataScreen.vue'
 import PublicScreen from './screens/PublicScreen.vue'
+import LandingScreen from './screens/LandingScreen.vue'
 import RiskScreen from './screens/RiskScreen.vue'
 import { useGate } from './composables/useGate.js'
 import { useData, usePublicData } from './composables/useData.js'
@@ -93,7 +93,12 @@ function signOut() {
 
 onMounted(loadPublic)
 
-/* ⚠ ТЁМНОЙ ТЕМЫ БОЛЬШЕ НЕТ НИ НА ОДНОМ СОСТОЯНИИ (30.08.2026). Она красила
+/* ⚠ С 15.10.2026 исключение одно — главная до входа (`LandingScreen`): она
+ * стоит на титане Ранскеила своим скоупным набором токенов и сама красит
+ * подложку документа и строку состояния, пока смонтирована. Всё, что ниже,
+ * относится к оболочке контура и окну входа — они остались светлыми.
+ *
+ * ⚠ ТЁМНОЙ ТЕМЫ БОЛЬШЕ НЕТ НИ НА ОДНОМ СОСТОЯНИИ (30.08.2026). Она красила
  * полноэкранный вход; вход стал шторкой поверх светлой витрины, и чёрный фон
  * под ней означал бы, что страница сменилась, тогда как она осталась. Набор
  * `auth-dark` в `main.css` оставлен: он ещё пригодится, если вход когда-нибудь
@@ -170,41 +175,17 @@ onMounted(() => {
 
 <template>
   <!-- ═══ ПУБЛИЧНЫЙ СЛОЙ — без пароля (Д-41/Д-45) ═══
-       ⚠ ТА ЖЕ ОБОЛОЧКА, что и у контура, без вкладок и без крупного заголовка
-       в потоке. Слово «Успею» стоит на витрине ОДИН раз — крупно, в герое; в
-       липкой полосе оно появляется только когда герой уехал вверх. Раньше оно
-       стояло дважды и мелкая копия спорила с крупной. -->
-  <AppShell
+       ⚠⚠ С 15.10.2026 ГЛАВНАЯ — СВОЙ ЭКРАН `LandingScreen`, а не оболочка
+       контура с `PublicScreen` внутри (решение владельца: главная по
+       стандарту Ранскеила — титан, знак K3 с числом 87 в левом верхнем углу
+       рядом со словом «Успею», приборы как в Треке). `PublicScreen` остался
+       вкладкой «Горизонт» внутри контура и этой правкой не тронут: «внутри
+       после кнопки не трогай». Вход — та же шторка ниже. -->
+  <LandingScreen
     v-if="!gate.authed.value"
-    :tabs="[]"
-    title="Успею"
-    :big-title="false"
-  >
-    <!-- ⚠ ЗНАК СТОИТ ЛЕВЕЕ «Войти», В ТОЙ ЖЕ ПРАВОЙ ГРУППЕ. Отдельным слоем
-         поверх полосы его класть нельзя: слой уже занят действием, а два
-         абсолютных элемента в одном углу начнут перекрываться на узких
-         экранах.
-
-         ⛔ Состояние `min` — ТОЛЬКО БУКВА. Проверено отрисовкой: в клетке
-         34 px цифры выходят по 5 пикселей и превращаются в пятно в углу,
-         которое читается как дефект отрисовки, а не как число. Клетка с
-         числом начинает работать примерно с 64 px. -->
-    <template #header-trailing>
-      <div class="up-trailing">
-        <BrandMark state="min" :size="34" />
-        <button type="button" class="up-enter" @click="showGate = true">Войти</button>
-      </div>
-    </template>
-
-    <PublicScreen v-if="publicData && publicData.horizon" :pub="publicData" />
-    <div v-else class="up-wrap up-state">
-      <h1>Успею</h1>
-      <p>Первый прогон готовится.</p>
-      <p class="up-muted up-small">
-        Данные готовит контур командой <code>python3 tools/build_app_data.py</code>.
-      </p>
-    </div>
-  </AppShell>
+    :pub="publicData"
+    @enter="showGate = true"
+  />
 
   <!-- ⚠ ВХОД — ШТОРКА ПОВЕРХ ВИТРИНЫ, а не отдельный экран (владелец,
        30.08.2026). Отдельному экрану нужна была своя кнопка «Назад» и своя

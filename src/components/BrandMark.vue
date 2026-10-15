@@ -19,6 +19,11 @@
   ⚠ Плашка знака сплошная и тёмная, поэтому он одинаково стоит и на светлой,
     и на тёмной теме — подложку под него класть не нужно.
 
+  ⚠ `inverse` — тот же знак навыворот: светлая клетка, тёмные число и буква
+    (Д-64, слово владельца 15.10.2026: «иконку сделай навыворот, когда на
+    тёмном фоне»). Файлы `*-inv.svg` собирает тот же генератор; на светлых
+    экранах внутри контура по-прежнему стоит тёмная клетка.
+
   ⚠ Путь через BASE_URL, а не './icons/…': база сборки относительная (Pages
     живёт в подкаталоге), и относительный путь из компонента считался бы от
     адреса страницы, а не от корня приложения.
@@ -26,11 +31,13 @@
 const props = defineProps({
   state: { type: String, default: 'mid' },   // full · mid · min
   size: { type: Number, default: 34 },
+  inverse: { type: Boolean, default: false },
 })
 
 const FILES = { full: 'icon-full.svg', mid: 'icon-mark.svg', min: 'icon.svg' }
 const base = import.meta.env.BASE_URL || './'
-const src = `${base}icons/${FILES[props.state] || FILES.mid}`
+const file = FILES[props.state] || FILES.mid
+const src = `${base}icons/${props.inverse ? file.replace('.svg', '-inv.svg') : file}`
 </script>
 
 <template>

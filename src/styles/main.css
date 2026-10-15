@@ -375,3 +375,112 @@
 .up-field::placeholder { color: var(--placeholder); }
 .up-field:focus { outline: 2px solid var(--action); outline-offset: -2px; }
 .up-field.bad { border-color: var(--sig-alarm); }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ГЛАВНАЯ «УСПЕЮ» — ТИТАНОВЫЙ ХОЛСТ (15.10.2026, решение владельца)
+
+   Главная пересобрана по текущему стандарту Ранскеила: первый экран и холст
+   — как у лендинга Ультры (живой титан, знак со светом за ним, крупная
+   фраза и синяя строка с подчёркнутыми числами), приборы — как дашборды
+   Трека, аккордеон метода — как «Важно.» на /join.
+
+   ⚠ НАБОР СКОУПНЫЙ И ВИСИТ НА КОРНЕ ГЛАВНОЙ (`LandingScreen.vue`), А НЕ НА
+   <html>. Шторки уходят Teleport'ом в <body> и остаются светлыми: окно входа
+   и всё, что за ним, этой правкой не затронуто (слово владельца: «внутри
+   после кнопки не трогай»). Тёмным становится только фон документа — класс
+   `up-landing`, чтобы на телефоне при оттяжке страницы и под чёлкой не
+   светила светлая подложка.
+
+   Значения нейтралей — набор `ultra-dark` из gderost/Ультры (DESIGN-STANDARD
+   §8–9): контраст там посчитан формулой WCAG и повторно не подбирается.
+     --text           #F2F2F2  → 12,1:1 на карточке #2E2E2E
+     --text-secondary #C4C4C4  →  7,8:1
+     --text-muted     #A8A8A8  →  5,7:1 (порог 4,5)
+     --action-text    #6AA5FF  →  5,5:1 на карточке, 4,76:1 на светлом блике титана
+   Тона календаря и шкалы пересчитаны под тёмную карточку (#2E2E2E):
+     --wk-lived  #4C8DFF 4,2:1 · --wk-ahead #3B5C94 2,0:1 (к прожитому 2,1:1)
+     --wk-target #8B5CF6 3,2:1 · --wk-review #22C55E 6,0:1
+   ⛔ Красного в тонах недель по-прежнему нет ни одного (см. календарь выше).
+   ═══════════════════════════════════════════════════════════════════════ */
+@property --lp-rim-a {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+:root {
+  /* Холст документа под главной — смола титана. Нужен вне скоупа: под
+     оттяжкой страницы и под чёлкой видна подложка <html>, а не корень. */
+  --lp-canvas: #0B0B0D;
+}
+html.up-landing,
+html.up-landing body { background: var(--lp-canvas); }
+
+[data-theme='uspeyu-dark'] {
+  color-scheme: dark;
+  --bg: #0B0B0D;
+  --surface: #2E2E2E;  --surface-2: #383838;  --surface-3: #414141;
+  --line: #4A4A4A;
+  --text: #F2F2F2;  --text-secondary: #C4C4C4;  --text-muted: #A8A8A8;
+  --graphite: #A8A8A8;
+  --placeholder: #A8A8A8;
+
+  --action: #2563EB;  --action-ink: #FFFFFF;
+  --action-text: #6AA5FF;
+
+  --sig-ok: #4ADE80;       --sig-ok-fill: #173A26;       --sig-ok-ink: #86EFAC;
+  --sig-watch: #FACC15;    --sig-watch-fill: #3A3110;    --sig-watch-ink: #FDE68A;
+  --sig-alarm: #FF6B5E;    --sig-alarm-fill: #40201D;    --sig-alarm-ink: #FFB4AB;
+  --sig-unknown: #A8B1BD;  --sig-unknown-fill: #2B3038;  --sig-unknown-ink: #D3D9E1;
+  --sig-blocked: #B79CFF;  --sig-blocked-fill: #2E2547;  --sig-blocked-ink: #D8CCFF;
+
+  --wk-review: #22C55E;
+  --wk-lived: #4C8DFF;
+  --wk-ahead: #3B5C94;
+  --wk-target: #8B5CF6;
+
+  --ink-on-color: #FFFFFF;
+  --rim: #4A4A4A;
+  --rim-glow: rgba(255, 255, 255, 0.10);
+  --surface-hover: #414141;
+  --card-shadow: inset 0 1px 0 var(--rim-glow), 0 24px 48px -24px rgba(0, 0, 0, 0.9);
+
+  /* Титан — ступени из gderost (GR-68): смола между хлопьями → блик.
+     Светлее `--titan-6` не поднимать: синий текст на блике падает ниже 4,5. */
+  --titan-0: #0B0B0D;  --titan-1: #111114;  --titan-2: #18181B;
+  --titan-3: #1F1F23;  --titan-4: #27272B;  --titan-5: #2F2F34;
+  --titan-6: #37373C;
+
+  /* Свет за знаком — тот же титан, смешанный с синим действия (как свет
+     за иконкой Ультры, UD-34): от 10 % у смолы до 68 % у блика. */
+  --glow-0: #0E1423;  --glow-1: #152343;  --glow-2: #1C305E;
+  --glow-3: #223C77;  --glow-4: #26468F;  --glow-5: #294EA2;
+  --glow-6: #2B55B3;
+
+  /* Стекло плашек и стики-шапки поверх титана. */
+  --lp-glass: rgba(20, 20, 24, 0.66);
+  --lp-glass-line: rgba(255, 255, 255, 0.10);
+  --lp-glass-hi: rgba(255, 255, 255, 0.08);
+  --lp-card: rgba(46, 46, 46, 0.86);
+  --lp-shadow: rgba(0, 0, 0, 0.55);
+  /* Блик, который бежит по канту знака, и свет под ним. */
+  --lp-glint: #8FBCFF;
+  --lp-halo: rgba(37, 99, 235, 0.38);
+  /* Синяя плашка «Жить — это команда»: белые чернила и их приглушённый тон. */
+  --lp-on-blue: #FFFFFF;
+  --lp-on-blue-muted: rgba(255, 255, 255, 0.78);
+  /* Шторки главной (Д-64) — набор `ultra-dark` Ультры: панель светлее
+     холста, иначе чёрное на чёрном не даёт границы. */
+  --lp-sheet: #242424;
+  --lp-scrim: rgba(0, 0, 0, 0.6);
+  /* Окно-легенда письма — числа легенды Ротора gderost (`.pm-leg`, D-1381). */
+  --lg-bg: #06080C;
+  --lg-ink: #E6E9EF;
+  --lg-title: #FFFFFF;
+  --lg-muted: #9AA3B2;
+  --lg-over: #6AA6FF;
+  --lg-btn: rgba(255, 255, 255, 0.14);
+  --lg-btn-hi: rgba(255, 255, 255, 0.24);
+  /* Зерно стекла — обесцвеченный шум браузера, без картинки (приём Ультры). */
+  --lp-grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncA type='linear' slope='0.07'/></feComponentTransfer></filter><rect width='140' height='140' filter='url(%23g)'/></svg>");
+}
