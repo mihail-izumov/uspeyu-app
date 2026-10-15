@@ -236,12 +236,16 @@ check('верный пароль пускает', !text().includes('Доступ
 /* ⚠ Шесть, а не пять (решение владельца 30.08.2026). Первой стоит
    «Горизонт» — та же публичная страница, что видна до входа: войдя, вернуться
    к ней было нельзя вообще никак, кроме перезагрузки вкладки. */
-const TAB_COUNT = 6
+/* ⚠ Четыре, а не шесть (Д-53): «Горизонт · Заряд · День · Данные». «Системы»,
+   «Прогресс» и «Контроль рисков» стали плитками на «Заряде». Дым об этом не
+   узнал, и 15.10.2026 первая проверка с фразой упала на «шести вкладках»,
+   хотя приложение было исправно. Подписи вкладок ниже ищутся по тексту. */
+const TAB_COUNT = 4
 await until(() => document.querySelectorAll('[role="tab"]').length === TAB_COUNT)
 await until(() => /полнота \d+%/.test(text()))
 const screens = {}
 const tabs = [...document.querySelectorAll('[role="tab"]')]
-check('шесть вкладок', tabs.length === TAB_COUNT, `найдено ${tabs.length} · ${text().slice(0, 200)}`)
+check('четыре вкладки', tabs.length === TAB_COUNT, `найдено ${tabs.length} · ${text().slice(0, 200)}`)
 /* ⛔ Выход обязателен и стоит на каждом экране: без него человек, вошедший
    на телефоне в полноэкранном режиме, заперт внутри — перезагрузить нечем. */
 check('кнопка «Выйти» есть в шапке',
@@ -304,11 +308,31 @@ const openTab = (label) => {
   b.dispatchEvent(new window.MouseEvent('click', { bubbles: true }))
   return true
 }
-for (const label of ['Заряд', 'День', 'Системы', 'Прогресс', 'Данные']) {
+for (const label of ['Заряд', 'День', 'Данные']) {
   check(`вкладка «${label}» есть в капсуле`, openTab(label))
   await wait(140)
   screens[label] = text()
 }
+/* ⚠ «Системы» и «Прогресс» с Д-53 — плитки на «Заряде», как «Контроль рисков»
+   выше, а не вкладки. Открываются плиткой, назад — вкладкой «Заряд». Текст их
+   экранов по-прежнему кладётся в screens и проходит обход запрещённых
+   формулировок ниже. */
+const openTile = async (label) => {
+  openTab('Заряд')
+  await wait(140)
+  const b = [...document.querySelectorAll('button')]
+    .find((x) => x.getAttribute('role') !== 'tab' && x.textContent.trim().startsWith(label))
+  if (!b) return false
+  b.dispatchEvent(new window.MouseEvent('click', { bubbles: true }))
+  return true
+}
+for (const label of ['Системы', 'Прогресс']) {
+  check(`плитка «${label}» на «Заряде» открывает раздел`, await openTile(label))
+  await wait(140)
+  screens[label] = text()
+}
+openTab('Заряд')
+await wait(140)
 
 check('системы: шесть систем', ['Сердце и сосуды', 'Почки', 'Печень', 'ЖКТ и желудок', 'Суставы и обмен', 'Мозг и нервная система']
   .every((n) => screens['Системы'].includes(n)))
