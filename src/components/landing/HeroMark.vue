@@ -42,6 +42,15 @@ const props = defineProps({
      каким был. */
   state: { type: String, default: 'full' },
   width: { type: String, default: '' },
+  /* Спокойный ход для синей плашки (Д-74, слово владельца 16.10.2026, 12:34:
+     «иконка ходит вверх вниз и всё остальное внутри тоже ходит, но в
+     хаотическом порядке, а не все вместе»). На первом экране три движения
+     живут каждое в своём ритме: клетка плавает, свет дышит, хлопья света
+     переливаются случайной волной. На синем светлые хлопья видны ярче, и
+     разнобой читался как суета. В спокойном ходу клетка и свет качаются
+     одним куском, хлопья стоят неподвижным кадром, свет не дышит отдельно;
+     блик по канту остаётся. */
+  calm: { type: Boolean, default: false },
 })
 
 const shown = ref(false)
@@ -100,10 +109,10 @@ const haloStyle = computed(() => ({ '--hm-fade': Math.max(0, Math.min(1, props.f
 </script>
 
 <template>
-  <div class="hm" :class="{ 'is-shown': shown, 'is-hover': hover }" :style="rootStyle" @pointermove="onMove" @pointerleave="onLeave">
+  <div class="hm" :class="{ 'is-shown': shown, 'is-hover': hover, 'is-calm': calm }" :style="rootStyle" @pointermove="onMove" @pointerleave="onLeave">
     <div class="hm-halo" :style="haloStyle" aria-hidden="true">
       <div class="hm-glow">
-        <TitanLayer seed="uspeyu-glow" :scale="0.8" :sweep="6" />
+        <TitanLayer seed="uspeyu-glow" :scale="0.8" :sweep="calm ? 0 : 6" :still="calm" />
       </div>
     </div>
 
@@ -226,10 +235,18 @@ const haloStyle = computed(() => ({ '--hm-fade': Math.max(0, Math.min(1, props.f
 }
 @keyframes hm-rim { to { --lp-rim-a: 360deg; } }
 
+/* Спокойный ход (синяя плашка): качается весь знак вместе со светом —
+   анимация переезжает с плитки на корень, где лежат и свет, и плитка. */
+.hm.is-calm.is-shown { animation: hm-float 7s ease-in-out 1s infinite; }
+.hm.is-calm.is-shown .hm-float { animation: none; }
+.hm.is-calm.is-hover { animation-play-state: paused; }
+.hm.is-calm .hm-glow { animation: hm-appear 0.8s ease both; }
+
 @media (prefers-reduced-motion: reduce) {
   .hm-glow { animation: none; opacity: 0.8; }
   .hm-float { transition: none; opacity: 1; transform: none; }
   .hm.is-shown .hm-float { animation: none; }
+  .hm.is-calm.is-shown { animation: none; }
   .hm-tile { transition: none; }
   .hm-rim { animation: none; }
 }

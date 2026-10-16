@@ -576,7 +576,7 @@ onBeforeUnmount(() => {
              прежнее Д-64, п. 12 «знак без слова» этим снято). -->
         <section class="wrap sec end">
           <div v-reveal class="blue">
-            <HeroMark state="full" inverse width="clamp(160px, 46vw, 196px)" class="blue-mark" />
+            <HeroMark state="full" inverse calm width="clamp(160px, 46vw, 196px)" class="blue-mark" />
             <p class="motto">{{ pub.product.motto }}</p>
             <p class="author">{{ pub.product.author }}</p>
             <button v-if="!inside" type="button" class="blue-go" @click="toCapture">Узнать свой горизонт</button>
