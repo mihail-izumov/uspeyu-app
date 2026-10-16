@@ -34,6 +34,14 @@ const props = defineProps({
   /* Клетка навыворот — на тёмном титане главной (Д-64). На светлом холсте
      кабинета (Д-71) стоит тёмная клетка, как во всём контуре. */
   inverse: { type: Boolean, default: true },
+  /* Тот же знак со светом и кантом стоит и в синей плашке внизу главной
+     (Д-74, слово владельца 16.10.2026: «в синей плашке лого… примени эффекты
+     как на главном логе на первом экране»; там же «внутри лого тоже надо
+     писать успею»). Там знак меньше, поэтому ширина, а при нужде и
+     состояние, приходят снаружи; первый экран их не передаёт и остаётся
+     каким был. */
+  state: { type: String, default: 'full' },
+  width: { type: String, default: '' },
 })
 
 const shown = ref(false)
@@ -87,11 +95,12 @@ const tileStyle = computed(() => ({
   '--hm-gx': `${gx.value}%`,
   '--hm-gy': `${gy.value}%`,
 }))
+const rootStyle = computed(() => (props.width ? { width: props.width } : null))
 const haloStyle = computed(() => ({ '--hm-fade': Math.max(0, Math.min(1, props.fade)).toFixed(3) }))
 </script>
 
 <template>
-  <div class="hm" :class="{ 'is-shown': shown, 'is-hover': hover }" @pointermove="onMove" @pointerleave="onLeave">
+  <div class="hm" :class="{ 'is-shown': shown, 'is-hover': hover }" :style="rootStyle" @pointermove="onMove" @pointerleave="onLeave">
     <div class="hm-halo" :style="haloStyle" aria-hidden="true">
       <div class="hm-glow">
         <TitanLayer seed="uspeyu-glow" :scale="0.8" :sweep="6" />
@@ -100,7 +109,7 @@ const haloStyle = computed(() => ({ '--hm-fade': Math.max(0, Math.min(1, props.f
 
     <div class="hm-float">
       <div class="hm-tile" :style="tileStyle">
-        <BrandMark state="full" :size="300" :inverse="inverse" class="hm-mark" />
+        <BrandMark :state="state" :size="300" :inverse="inverse" class="hm-mark" />
         <span class="hm-shine" aria-hidden="true"></span>
         <span class="hm-rim" aria-hidden="true"></span>
       </div>

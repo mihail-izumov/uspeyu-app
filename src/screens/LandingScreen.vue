@@ -58,7 +58,6 @@
   дыма (PUBLIC-WHITELIST §2). Письмо рендерится только открытым.
 */
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
-import BrandMark from '../components/BrandMark.vue'
 import BottomSheet from '../components/BottomSheet.vue'
 import LifeCalendar from '../components/LifeCalendar.vue'
 import PoweredBy from '../components/PoweredBy.vue'
@@ -70,7 +69,7 @@ import LandingHeader from '../components/landing/LandingHeader.vue'
 import LandingSheet from '../components/landing/LandingSheet.vue'
 import LeadCapture from '../components/landing/LeadCapture.vue'
 import LetterLegend from '../components/landing/LetterLegend.vue'
-import { plural } from '../composables/useData.js'
+import { plural, usePublicData } from '../composables/useData.js'
 import { useProfile } from '../composables/useProfile.js'
 
 const props = defineProps({
@@ -84,6 +83,7 @@ const emit = defineEmits(['enter'])
 const Sheet = computed(() => (props.inside ? BottomSheet : LandingSheet))
 
 const ready = computed(() => !!(props.pub && props.pub.horizon))
+const { publicFailed } = usePublicData()
 const H = computed(() => props.pub?.horizon || null)
 
 /* ── первый экран: фраза и синяя строка ───────────────────────────────── */
@@ -357,10 +357,20 @@ onBeforeUnmount(() => {
             <a class="ext" :href="RUNSCALE_URL" target="_blank" rel="noopener">Ранскеил</a>.
           </p>
         </template>
-        <template v-else>
+        <!-- Д-74: пока данные в пути, под знаком ничего не пишется — место
+             держит пустой блок. «Первый прогон готовится» — только когда файл
+             пришёл без расчёта; сбой загрузки назван сбоем. До Д-74 эта ветка
+             стояла на каждой загрузке и мелькала вместо «Ранскеил теперь и
+             для жизни.». -->
+        <template v-else-if="pub">
           <h1 class="hero-title"><span class="hero-line">Успею&nbsp;87</span></h1>
           <p class="hero-sub">Первый прогон готовится.</p>
         </template>
+        <template v-else-if="publicFailed">
+          <h1 class="hero-title"><span class="hero-line">Успею&nbsp;87</span></h1>
+          <p class="hero-sub">Расчёт не загрузился. Обновите страницу.</p>
+        </template>
+        <div v-else class="hero-wait" aria-hidden="true"></div>
       </section>
 
       <template v-if="ready">
@@ -560,10 +570,13 @@ onBeforeUnmount(() => {
         </section>
 
         <!-- ═══ Синяя плашка — как «От Трека до Ультры — одна команда.» ═══
-             Знак — одной буквой, без слова (Д-64, п. 12). -->
+             Знак целиком — число, буква и слово «Успею», со светом, кантом и
+             наклоном, как на первом экране (Д-74, слово владельца 16.10.2026:
+             «в синей плашке где лого внутри лого тоже надо писать успею»;
+             прежнее Д-64, п. 12 «знак без слова» этим снято). -->
         <section class="wrap sec end">
           <div v-reveal class="blue">
-            <BrandMark state="head" :size="88" inverse class="blue-mark" />
+            <HeroMark state="full" inverse width="clamp(160px, 46vw, 196px)" class="blue-mark" />
             <p class="motto">{{ pub.product.motto }}</p>
             <p class="author">{{ pub.product.author }}</p>
             <button v-if="!inside" type="button" class="blue-go" @click="toCapture">Узнать свой горизонт</button>
@@ -689,6 +702,8 @@ onBeforeUnmount(() => {
   text-wrap: balance;
 }
 .hero-line { display: block; }
+/* Место под заголовок, пока данные в пути: страница не прыгает, когда он встаёт. */
+.hero-wait { min-height: 260px; }
 .hero-lead {
   position: relative;
   z-index: 1;
@@ -1056,6 +1071,9 @@ onBeforeUnmount(() => {
 .end { padding-top: 84px; }
 .blue {
   position: relative;
+  /* Своя ступень наложения: свет за знаком (z-index −1 внутри HeroMark)
+     ложится поверх синей заливки плашки, а не уходит под неё (Д-74). */
+  isolation: isolate;
   overflow: hidden;
   border-radius: 28px;
   padding: 26px 22px 22px;
@@ -1073,11 +1091,15 @@ onBeforeUnmount(() => {
   background-size: 140px 140px;
   opacity: 0.6;
 }
-.blue-mark {
-  position: relative;
-  margin: 0 auto;
-  box-shadow: 0 10px 24px -10px rgba(0, 0, 0, 0.35);
+/* Свет за знаком на синем — светлые ступени синего (`--glow-blue-*`):
+   тёмный ореол первого экрана на синей заливке читался бы грязным пятном. */
+.blue {
+  --glow-0: var(--glow-blue-0);  --glow-1: var(--glow-blue-1);
+  --glow-2: var(--glow-blue-2);  --glow-3: var(--glow-blue-3);
+  --glow-4: var(--glow-blue-4);  --glow-5: var(--glow-blue-5);
+  --glow-6: var(--glow-blue-6);
 }
+.blue-mark { margin: 6px auto 4px; }
 .motto {
   position: relative;
   margin: 16px 0 0;

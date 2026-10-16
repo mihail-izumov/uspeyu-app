@@ -170,7 +170,12 @@ onMounted(() => {
   // гадать, почему изменения не видны.
   if ('serviceWorker' in navigator && import.meta.env.PROD) {
     const base = import.meta.env.BASE_URL || './'
-    navigator.serviceWorker.register(`${base}sw.js`).catch(() => {})
+    /* Проверка новой версии на каждом заходе (Д-74). Сам браузер сверяет
+       sw.js с сервером редко и с задержкой: 16.10.2026 новая сборка сутки
+       лежала на сервере, а у владельца открывалась вчерашняя главная. */
+    navigator.serviceWorker.register(`${base}sw.js`)
+      .then((reg) => reg.update())
+      .catch(() => {})
   }
 })
 </script>

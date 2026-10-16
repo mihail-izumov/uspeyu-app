@@ -67,27 +67,43 @@ export function waitingForKey() {
  *   погасит сайт для всех. Обратный порядок тоже неверен: медкарта не
  *   грузится, пока человек не вошёл (см. комментарий выше про честность).
  */
-const publicData = ref(null)
+/* Вложенные сборкой данные (Д-74) берутся сразу при загрузке модуля, а не
+   в onMounted: иначе первый кадр рисуется без них, и под знаком на миг
+   остаётся пустое место. */
+const publicData = ref(globalThis.__KONTUR_PUBLIC__ || null)
+/* Файл так и не пришёл после всех попыток. Отдельно от «ещё грузится»:
+   пока идёт загрузка, первый экран не пишет ничего, а запасная фраза
+   стоит только на настоящий сбой (Д-74). */
+const publicFailed = ref(false)
 let publicStarted = false
 
 export function usePublicData() {
   async function loadPublic() {
     if (publicStarted) return
     publicStarted = true
-    try {
-      if (globalThis.__KONTUR_PUBLIC__) {
-        publicData.value = globalThis.__KONTUR_PUBLIC__
-        return
-      }
-      const base = import.meta.env.BASE_URL || './'
-      const res = await fetch(`${base}data/public.json`, { cache: 'no-cache' })
-      if (res.ok) publicData.value = await res.json()
-    } catch {
-      // Публичная страница честно скажет «первый прогон готовится».
-      publicStarted = false
+    publicFailed.value = false
+    // Обычный путь с Д-74: данные уже вложены сборкой в index.html.
+    if (globalThis.__KONTUR_PUBLIC__) {
+      publicData.value = globalThis.__KONTUR_PUBLIC__
+      return
     }
+    // Запасной — запросом. ⚠ До Д-74 попытка была одна, и ответ не 200
+    // оставлял страницу на запасной фразе до перезагрузки: повтора не было.
+    const base = import.meta.env.BASE_URL || './'
+    for (const pause of [0, 800, 2500, 6000]) {
+      if (pause) await new Promise((r) => setTimeout(r, pause))
+      try {
+        const res = await fetch(`${base}data/public.json`, { cache: 'no-cache' })
+        if (res.ok) {
+          publicData.value = await res.json()
+          return
+        }
+      } catch { /* следующая попытка */ }
+    }
+    publicFailed.value = true
+    publicStarted = false
   }
-  return { publicData, loadPublic }
+  return { publicData, publicFailed, loadPublic }
 }
 
 export function useData() {

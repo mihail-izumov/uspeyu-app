@@ -31,6 +31,40 @@ function ogFromPublic() {
   }
 }
 
+/* ── ПУБЛИЧНЫЕ ДАННЫЕ — ВНУТРИ СТРАНИЦЫ (Д-74, 16.10.2026) ──────────────────
+ * Слово владельца: «при загрузке страницы вместо „Ранскеил теперь и для
+ * жизни.“ и проч видно какую-то другую фразу артефакт — разберись в чём там
+ * зависание». Первый экран ждал `public.json` отдельным запросом, который
+ * уходил только после загрузки и запуска бандла; до ответа стояла запасная
+ * фраза «Успею 87 · Первый прогон готовится», а сорвавшийся запрос не
+ * повторялся, и страница так на ней и оставалась.
+ * Теперь сборка кладёт тот же файл в `index.html` блоком
+ * <script type="application/json">, как это давно делает однофайловая сборка
+ * (`scripts/build-preview.mjs`): данные приходят вместе со страницей, и
+ * первый кадр уже с нужной фразой. Сам файл `public.json` по-прежнему
+ * публикуется рядом — им пользуется запасной путь `usePublicData`.
+ * ⚠ Вкладывается ТОЛЬКО публичный слой. health.json и .enc сюда не идут
+ *   никогда: граница Д-45 остаётся той же, что у отдельного файла. */
+function publicInline() {
+  return {
+    name: 'public-inline',
+    transformIndexHtml() {
+      let raw
+      try {
+        raw = readFileSync(fileURLToPath(new URL('./public/data/public.json', import.meta.url)), 'utf8')
+        JSON.parse(raw)
+      } catch {
+        return [] // нет файла — страница возьмёт его запросом
+      }
+      return [
+        // Закрыть нужно одно — `</script` внутри данных.
+        { tag: 'script', attrs: { type: 'application/json', id: 'kontur-public' }, children: raw.replace(/<\/script/gi, '<\\/script'), injectTo: 'head' },
+        { tag: 'script', children: "window.__KONTUR_PUBLIC__ = JSON.parse(document.getElementById('kontur-public').textContent)", injectTo: 'head' },
+      ]
+    },
+  }
+}
+
 // base: './' — относительные пути к бандлу и данным.
 //
 // ⚠ Это не вкусовщина, а условие для GitHub Pages. Project-сайт живёт по адресу
@@ -48,7 +82,7 @@ function ogFromPublic() {
 // нет, и терять нечего.
 export default defineConfig({
   base: './',
-  plugins: [vue(), ogFromPublic()],
+  plugins: [vue(), ogFromPublic(), publicInline()],
   server: {
     // ⚠ ПОРТ ЗАКРЕПЛЁН (30.08.2026). По умолчанию vite берёт 5173, а занятый
     //   порт молча уступает следующему — адрес приложения начинает зависеть
