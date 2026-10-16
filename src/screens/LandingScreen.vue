@@ -36,6 +36,22 @@
   показывается внутри контура вкладкой «Горизонт» — правка его задела бы то,
   что после «Войти», а это владелец трогать запретил.
 
+  ⚠⚠ Д-71 (15.10.2026, 21:00): ЭТОТ ЖЕ ЭКРАН — ВКЛАДКА «ГОРИЗОНТ» ВНУТРИ
+  КАБИНЕТА, проп `inside`. Слово владельца на вопрос «сделать на её месте то
+  же, что сейчас на главной?» — «сделай». Один экран, а не копия: копия
+  разошлась бы с главной в первую же правку текста. Внутри тема светлая
+  (Д-70) — набор `uspeyu-light` вместо `uspeyu-dark`, и снято то, что внутри
+  не работает или говорит неправду:
+    · своя шапка с «Войти» и тёмный титан под страницей — у кабинета своя
+      шапка и свой холст, страница не трогает подложку документа;
+    · плашка почты и кнопка «Узнать свой горизонт» в синей плашке — человек
+      уже вошёл, звать его оставить почту некому;
+    · строка с замком «Кнопка «Войти» наверху ведёт туда» — заменена строкой
+      о том, где кабинет внутри;
+    · шторки — светлые общие (`BottomSheet`), письмо — та же легенда Ротора.
+  Режим главной (`inside` = false) этой правкой не изменён: вычисленные
+  стили её элементов до и после совпадают.
+
   ⛔ Каждое поле на экране — из `public.json` по docs/PUBLIC-WHITELIST.md §1.
 
   ⛔ СЛОВА, КОТОРЫХ НА СТРАНИЦЕ ДО ВХОДА БЫТЬ НЕ МОЖЕТ, — закрытый список
@@ -43,6 +59,7 @@
 */
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import BrandMark from '../components/BrandMark.vue'
+import BottomSheet from '../components/BottomSheet.vue'
 import LifeCalendar from '../components/LifeCalendar.vue'
 import PoweredBy from '../components/PoweredBy.vue'
 import ReadingBlocks from '../components/ReadingBlocks.vue'
@@ -56,8 +73,15 @@ import LetterLegend from '../components/landing/LetterLegend.vue'
 import { plural } from '../composables/useData.js'
 import { useProfile } from '../composables/useProfile.js'
 
-const props = defineProps({ pub: { type: Object, default: null } })
+const props = defineProps({
+  pub: { type: Object, default: null },
+  /* Д-71: вкладка «Горизонт» внутри кабинета — светлая, без своей шапки,
+     без почты и без тёмного холста документа. */
+  inside: { type: Boolean, default: false },
+})
 const emit = defineEmits(['enter'])
+/* Шторки: на главной — тёмные, как у Ультры; внутри — светлые общие. */
+const Sheet = computed(() => (props.inside ? BottomSheet : LandingSheet))
 
 const ready = computed(() => !!(props.pub && props.pub.horizon))
 const H = computed(() => props.pub?.horizon || null)
@@ -281,32 +305,37 @@ if (typeof window !== 'undefined') {
 }
 
 onMounted(() => {
+  /* Внутри кабинета страница не хозяйка документа: холст, строку состояния
+     и прокрутку держит оболочка (Д-71). */
+  if (props.inside) return
   setCanvas(true)
   window.addEventListener('scroll', onScroll, { passive: true })
   window.addEventListener('resize', onScroll)
   paint()
 })
 onBeforeUnmount(() => {
-  setCanvas(false)
-  window.removeEventListener('scroll', onScroll)
-  window.removeEventListener('resize', onScroll)
+  if (!props.inside) {
+    setCanvas(false)
+    window.removeEventListener('scroll', onScroll)
+    window.removeEventListener('resize', onScroll)
+  }
   if (raf) cancelAnimationFrame(raf)
   io?.disconnect()
 })
 </script>
 
 <template>
-  <div class="lp" data-theme="uspeyu-dark">
-    <div class="lp-bg" aria-hidden="true">
+  <div class="lp" :class="{ in: inside }" :data-theme="inside ? 'uspeyu-light' : 'uspeyu-dark'">
+    <div v-if="!inside" class="lp-bg" aria-hidden="true">
       <TitanLayer seed="uspeyu-lp" />
     </div>
 
-    <LandingHeader :compact="compact" @enter="emit('enter')" @top="toTop" />
+    <LandingHeader v-if="!inside" :compact="compact" @enter="emit('enter')" @top="toTop" />
 
     <main class="lp-main">
       <!-- ═══ Первый экран ═══ -->
       <section ref="hero" class="hero">
-        <HeroMark :fade="heroFade" />
+        <HeroMark :fade="heroFade" :inverse="!inside" />
 
         <template v-if="ready">
           <h1 class="hero-title">
@@ -336,7 +365,7 @@ onBeforeUnmount(() => {
 
       <template v-if="ready">
         <!-- ═══ Плашка почты — стекло в кольце, как стартовая панель Ультры ═══ -->
-        <section ref="capture" v-reveal class="wrap start">
+        <section v-if="!inside" ref="capture" v-reveal class="wrap start">
           <div class="glass">
             <span class="glass-ring" aria-hidden="true"></span>
             <span class="glass-core" aria-hidden="true"></span>
@@ -406,7 +435,7 @@ onBeforeUnmount(() => {
                 <span class="owner-s up-digit">{{ NB(ownerLine) }}</span>
               </span>
             </div>
-            <HorizonDial v-model="sel" :horizon="H" :person="person" />
+            <HorizonDial v-model="sel" :horizon="H" :person="person" :narrow="inside" />
           </article>
 
           <button v-reveal type="button" class="card row" @click="sheet = 'reading'">
@@ -477,10 +506,17 @@ onBeforeUnmount(() => {
               </span>
             </div>
           </div>
-          <p v-reveal class="docs-lock">
+          <p v-if="!inside" v-reveal class="docs-lock">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5" /><path d="M8.5 10.5V7.5a3.5 3.5 0 0 1 7 0v3" /></svg>
             Кабинет закрыт паролем, потому что в нём мои медицинские подробности. Кнопка «Войти»
             наверху ведёт туда. На экстренный случай пароль есть у моих родственников, Марии и Максима.
+          </p>
+          <!-- Внутри кабинета строка говорит, где всё это, а не как сюда попасть
+               (Д-71). Здесь уже за паролем, поэтому разделы названы прямо. -->
+          <p v-else v-reveal class="docs-lock">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5" /><path d="M8.5 10.5V7.5a3.5 3.5 0 0 1 7 0v3" /></svg>
+            Всё это — во вкладках внизу: «Заряд», «День» и «Данные». Пароль от кабинета
+            на экстренный случай есть у моих родственников, Марии и Максима.
           </p>
         </section>
 
@@ -530,7 +566,7 @@ onBeforeUnmount(() => {
             <BrandMark state="head" :size="88" inverse class="blue-mark" />
             <p class="motto">{{ pub.product.motto }}</p>
             <p class="author">{{ pub.product.author }}</p>
-            <button type="button" class="blue-go" @click="toCapture">Узнать свой горизонт</button>
+            <button v-if="!inside" type="button" class="blue-go" @click="toCapture">Узнать свой горизонт</button>
           </div>
         </section>
 
@@ -558,7 +594,7 @@ onBeforeUnmount(() => {
 
     <!-- ═══ ШТОРКИ — как у лендинга Ультры; письмо — легендой Ротора ═══ -->
     <template v-if="ready">
-      <LandingSheet :open="isOpen('who')" title="Чей горизонт" @close="sheet = ''">
+      <component :is="Sheet" :open="isOpen('who')" title="Чей горизонт" @close="sheet = ''">
         <p class="who-p">
           Сейчас открыт мой расчёт. Я Михаил Изюмов, основатель
           <a class="ext" :href="RUNSCALE_URL" target="_blank" rel="noopener">Ранскеил</a>
@@ -576,20 +612,21 @@ onBeforeUnmount(() => {
             </button>
           </li>
         </ul>
-      </LandingSheet>
+      </component>
 
       <LetterLegend :open="isOpen('letter')" @close="sheet = ''" />
 
-      <LandingSheet
+      <component
+        :is="Sheet"
         :open="isOpen('reading')"
         :title="(pub.onboarding && pub.onboarding.title) || 'Как читать Горизонт'"
         @close="sheet = ''"
       >
         <ReadingBlocks class="rd" :sections="readSections" />
-      </LandingSheet>
+      </component>
 
-      <LandingSheet :open="isOpen('versions')" title="Версии «Успею&nbsp;87»" @close="sheet = ''">
-        <ol class="vers">
+      <component :is="Sheet" :open="isOpen('versions')" title="Версии «Успею&nbsp;87»" @close="sheet = ''">
+        <ol class="vers" :class="{ 'vers-in': inside }">
           <li v-for="(v, i) in pub.versions" :key="v.date + v.version" class="vr" :class="{ first: i === 0 }">
             <span class="vr-top">
               <span class="vr-n up-digit">{{ v.version }}</span>
@@ -599,7 +636,7 @@ onBeforeUnmount(() => {
           </li>
         </ol>
         <PoweredBy class="pb" />
-      </LandingSheet>
+      </component>
     </template>
   </div>
 </template>
@@ -1172,4 +1209,67 @@ onBeforeUnmount(() => {
   .cf-enter-active, .cf-leave-active { transition: none; }
   .crawl-g { animation: none !important; }
 }
+/* ═══ Д-71: ВКЛАДКА «ГОРИЗОНТ» ВНУТРИ КАБИНЕТА ═══════════════════════════
+   Все правила ниже начинаются с `.lp.in` и на главной не срабатывают.
+   Колонка кабинета — 430 px и на компьютере, поэтому кегли заданы числом,
+   а не от ширины окна (`vw` на компьютере дал бы заголовок в 72 px внутри
+   узкой колонки), и медиазапросы главной перебиты по специфичности.
+   Поверхности — язык кабинета (Д-70): белая карточка на объёме и канте,
+   нажимаемое — с контактной тенью. */
+.lp.in { min-height: 0; overflow-x: visible; }
+.lp.in .lp-main { padding-bottom: 8px; }
+.lp.in .wrap { max-width: none; padding: 0; }
+.lp.in .hero { padding: 6px 0 4px; }
+.lp.in :deep(.hm) { width: min(62%, 228px); }
+.lp.in .hero-title { margin-top: 26px; font-size: 40px; }
+.lp.in .hero-lead { font-size: 26px; }
+.lp.in .hero-sub, .lp.in .hero-sig { font-size: 16px; }
+.lp.in .sec { padding-top: 64px; scroll-margin-top: 72px; }
+.lp.in .sec-title { font-size: 38px; }
+.lp.in .quote { font-size: 26px; }
+.lp.in .motto { font-size: 32px; }
+.lp.in #gorizont.wrap { max-width: none; }
+.lp.in #gorizont .sec-blue { max-width: 26rem; }
+.lp.in .dash { padding: 16px 16px 18px; }
+.lp.in .end { padding-top: 64px; }
+.lp.in .foot { padding-top: 32px; }
+.lp.in .memo { max-width: 24rem; }
+.lp.in .card {
+  background: var(--surface);
+  -webkit-backdrop-filter: none;
+          backdrop-filter: none;
+  box-shadow:
+    inset 0 1px 0 var(--rim-glow, transparent),
+    inset 0 -1px 0 var(--rim-shade, transparent),
+    var(--card-shadow, none);
+}
+.lp.in .row:active { background: var(--surface-hover); }
+.lp.in .who, .lp.in .letter-go, .lp.in .foot-pill {
+  background: var(--surface);
+  -webkit-backdrop-filter: none;
+          backdrop-filter: none;
+  border-color: transparent;
+  box-shadow: inset 0 1px 0 var(--rim-glow, transparent), var(--card-shadow-sm, none);
+}
+.lp.in .chip.plain { background: var(--surface); border-color: transparent; }
+.lp.in .seg2 {
+  background: color-mix(in srgb, var(--text) 6%, transparent);
+  border-color: transparent;
+  -webkit-backdrop-filter: none;
+          backdrop-filter: none;
+  box-shadow: inset 0 1px 2px var(--rim-shade, transparent);
+}
+.lp.in .seg2-b.on { background: var(--surface); box-shadow: inset 0 1px 0 var(--rim-glow, transparent), var(--card-shadow-sm, none); }
+.lp.in .doc-i, .lp.in .ver { background: var(--surface-3); }
+/* Блик по тёмной клетке — светом, а не тенью: тень на тёмном не видна. */
+.lp.in :deep(.hm-shine) {
+  background: radial-gradient(
+    circle at var(--hm-gx, 50%) var(--hm-gy, 28%),
+    rgba(255, 255, 255, 0.16) 0%,
+    rgba(255, 255, 255, 0) 55%
+  );
+  mix-blend-mode: screen;
+}
+.vers-in .vr-n { background: color-mix(in srgb, var(--text) 8%, transparent); }
+.vers-in .vr.first .vr-n { background: var(--action); }
 </style>

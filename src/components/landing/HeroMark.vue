@@ -31,6 +31,9 @@ import TitanLayer from '../titan/TitanLayer.vue'
 const props = defineProps({
   // 1 — свет полный, 0 — погас (страница прокручена ниже середины знака).
   fade: { type: Number, default: 1 },
+  /* Клетка навыворот — на тёмном титане главной (Д-64). На светлом холсте
+     кабинета (Д-71) стоит тёмная клетка, как во всём контуре. */
+  inverse: { type: Boolean, default: true },
 })
 
 const shown = ref(false)
@@ -97,7 +100,7 @@ const haloStyle = computed(() => ({ '--hm-fade': Math.max(0, Math.min(1, props.f
 
     <div class="hm-float">
       <div class="hm-tile" :style="tileStyle">
-        <BrandMark state="full" :size="300" inverse class="hm-mark" />
+        <BrandMark state="full" :size="300" :inverse="inverse" class="hm-mark" />
         <span class="hm-shine" aria-hidden="true"></span>
         <span class="hm-rim" aria-hidden="true"></span>
       </div>

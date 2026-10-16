@@ -54,6 +54,10 @@ const props = defineProps({
   person: { type: Object, default: () => ({ name: 'Михаил', gen: 'Михаила', dat: 'Михаилу' }) },
   /* `person.author` — расчёт самого автора: тогда прибор говорит его голосом,
      от первого лица (Д-66: «предлагаю везде писать „я“ и „моё“»). */
+  /* Д-71: прибор во вкладке «Горизонт» внутри кабинета стоит в колонке
+     430 px и на компьютере. Медиазапрос считает ширину окна, а не колонки,
+     и разводил бы дугу и объяснения в две колонки внутри узкой карточки. */
+  narrow: { type: Boolean, default: false },
 })
 const emit = defineEmits(['update:modelValue'])
 
@@ -311,7 +315,7 @@ defineExpose({ el: box })
 </script>
 
 <template>
-  <div class="hd" :class="{ 'is-settled': settled, 'is-engaged': engaged }">
+  <div class="hd" :class="{ 'is-settled': settled, 'is-engaged': engaged, 'hd-narrow': narrow }">
     <div class="hd-l">
       <div ref="box" class="dial">
         <svg
@@ -679,6 +683,8 @@ defineExpose({ el: box })
     align-items: center;
   }
   .say { margin-top: 0; }
+  .hd.hd-narrow { display: block; }
+  .hd.hd-narrow .say { margin-top: 14px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

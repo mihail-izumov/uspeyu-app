@@ -9,7 +9,6 @@ import DayScreen from './screens/DayScreen.vue'
 import SystemsScreen from './screens/SystemsScreen.vue'
 import ProgressScreen from './screens/ProgressScreen.vue'
 import DataScreen from './screens/DataScreen.vue'
-import PublicScreen from './screens/PublicScreen.vue'
 import LandingScreen from './screens/LandingScreen.vue'
 import RiskScreen from './screens/RiskScreen.vue'
 import { useGate } from './composables/useGate.js'
@@ -59,7 +58,7 @@ const TABS = [
      «Горизонт» стоит первым, потому что это лицо продукта. */
   /* ⚠ Свой знак, а не батарея «Заряда»: с одинаковыми знаками две первые
      вкладки различались только подписью, и палец промахивался. */
-  { id: 'horizon', label: 'Горизонт', icon: 'horizon', title: 'Успею' },
+  { id: 'horizon', label: 'Горизонт', icon: 'horizon', title: 'Горизонт' },
   { id: 'charge', label: 'Заряд', icon: 'charge', title: 'Заряд' },
   { id: 'day', label: 'День', icon: 'day', title: 'День' },
   { id: 'data', label: 'Данные', icon: 'data', title: 'Данные' },
@@ -253,13 +252,12 @@ onMounted(() => {
     </div>
 
     <template v-else>
-      <!-- ⚠ ТА ЖЕ публичная страница, что видна до входа, а не её копия.
-           Копия разошлась бы с оригиналом в первую же правку текста. -->
-      <!-- ⚠ `up-flush` снимает боковые поля витрины: внутри оболочки холст уже
-           отбит `px-5`, и без этого на вкладке «Горизонт» поля складывались
-           вдвое — на телефоне карточки становились ощутимо уже, чем на всех
-           остальных экранах. -->
-      <PublicScreen v-if="active === 'horizon' && publicData && publicData.horizon" :pub="publicData" class="up-flush" />
+      <!-- ⚠ ТА ЖЕ страница, что видна до входа, а не её копия: копия разошлась
+           бы с оригиналом в первую же правку текста. С Д-71 (15.10.2026) это
+           экран главной `LandingScreen` в режиме `inside` — светлый, без
+           своей шапки и без почты. Прежняя витрина `PublicScreen.vue` больше
+           нигде не показывается. -->
+      <LandingScreen v-if="active === 'horizon' && publicData && publicData.horizon" :pub="publicData" inside />
       <ChargeScreen
         v-else-if="active === 'charge'"
         :data="data"

@@ -82,8 +82,9 @@ const activeIcon = () => (props.tabs.find((t) => t.id === props.active) || {}).i
       <!-- Строка контекста в потоке: связка «Успею 87» или возврат слева,
            действие справа. Уезжает вместе со страницей; дальше её держит
            стеклянная капсула. -->
+      <!-- Строка стоит и над витриной «Горизонт» (Д-71): у той больше нет
+           своей шапки, это тот же экран, что главная. -->
       <div
-        v-if="bigTitle"
         class="flex items-center justify-between gap-3 pl-4 pr-3 pt-[calc(env(safe-area-inset-top)+0.5rem)]"
       >
         <button
@@ -109,14 +110,6 @@ const activeIcon = () => (props.tabs.find((t) => t.id === props.active) || {}).i
       <div v-if="bigTitle" class="px-5 pb-4 pt-3">
         <h1 class="sh-h1 truncate">{{ title }}</h1>
         <p v-if="subtitle" class="mt-1 truncate text-[0.8125rem]" :style="{ color: 'var(--text-muted)' }">{{ subtitle }}</p>
-      </div>
-      <!-- Вкладка-витрина без крупного заголовка: действие справа держится
-           своим слоем, у витрины свой герой. -->
-      <div
-        v-else
-        class="pointer-events-none absolute inset-x-0 top-0 z-10 flex justify-end pr-3 pt-[calc(env(safe-area-inset-top)+0.5rem)]"
-      >
-        <div class="pointer-events-auto flex min-h-[44px] items-center"><slot name="header-trailing" /></div>
       </div>
 
       <main :class="tabs.length ? 'px-5 pb-[calc(7rem+env(safe-area-inset-bottom))]' : 'pb-[calc(2rem+env(safe-area-inset-bottom))]'">

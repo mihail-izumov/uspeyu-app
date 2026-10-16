@@ -809,3 +809,34 @@ html.up-landing body { background: var(--lp-canvas); }
   /* Зерно стекла — обесцвеченный шум браузера, без картинки (приём Ультры). */
   --lp-grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncA type='linear' slope='0.07'/></feComponentTransfer></filter><rect width='140' height='140' filter='url(%23g)'/></svg>");
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ГЛАВНАЯ ВНУТРИ КАБИНЕТА — СВЕТЛЫЙ НАБОР (Д-71, 15.10.2026)
+
+   Вкладка «Горизонт» внутри — тот же экран, что главная (`LandingScreen`,
+   проп `inside`), но тема кабинета светлая (Д-70). Набор задаёт только
+   токены, которые есть у главной и нет у кабинета; нейтрали, сигналы,
+   синий и тона календаря приходят из `:root`.
+     · стекло капсул — белое, граница цветом линии навигации;
+     · свет за знаком — тот же живой титан, но светло-синий: на светлом
+       холсте тёмный ореол читался бы пятном. Ступени от холста к голубому,
+       запись строго #rrggbb — слой титана читает их разбором строки;
+     · блик по канту знака — светлый синий: виден и на тёмной клетке, и на
+       светлом холсте вокруг неё.
+   ═══════════════════════════════════════════════════════════════════════ */
+[data-theme='uspeyu-light'] {
+  color-scheme: light;
+  --lp-glass: rgba(255, 255, 255, 0.72);
+  --lp-glass-line: #DDE0E8;
+  --lp-glass-hi: rgba(255, 255, 255, 0.92);
+  --lp-card: #FFFFFF;
+  --lp-shadow: rgba(28, 27, 24, 0.22);
+  --lp-glint: #6AA5FF;
+  --lp-halo: rgba(37, 99, 235, 0.28);
+  --lp-on-blue: #FFFFFF;
+  --lp-on-blue-muted: rgba(255, 255, 255, 0.78);
+  --lp-grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncA type='linear' slope='0.07'/></feComponentTransfer></filter><rect width='140' height='140' filter='url(%23g)'/></svg>");
+  --glow-0: #DCE3F3;  --glow-1: #D2DCF4;  --glow-2: #C7D4F5;
+  --glow-3: #BACBF5;  --glow-4: #ACC1F5;  --glow-5: #9EB7F4;
+  --glow-6: #90ADF3;
+}
