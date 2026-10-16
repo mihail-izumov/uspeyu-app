@@ -1,5 +1,35 @@
+import { readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+
+/* ── ОПИСАНИЕ ССЫЛКИ — ИЗ ДАННЫХ, А НЕ ИЗ ГОЛОВЫ (Д-73, 16.10.2026) ──────────
+ * Слово владельца: заменить «мой расчёт по анализам…» на «Горизонт Михаила
+ * 63–70, цель 87 лет». Вилка меняется с новыми анализами, а `index.html`
+ * статичен: вписанное руками число осталось бы в превью навсегда, пока на
+ * самой главной давно стоит другое. Поэтому в `index.html` стоит метка
+ * `__OG_HORIZON__`, а сборка подставляет строку из `public/data/public.json`
+ * — того же файла, из которого главная берёт синюю строку первого экрана.
+ * Сборка на GitHub идёт из закоммиченного `public.json`, так что превью
+ * всегда совпадает с опубликованной главной.
+ * ⚠ Ссылок в описании быть не может: мессенджеры показывают его простым
+ *   текстом. Нет данных — строка без чисел, но метка наружу не уезжает. */
+function ogFromPublic() {
+  return {
+    name: 'og-from-public',
+    transformIndexHtml(html) {
+      let text = 'Горизонт Михаила.'
+      try {
+        const pub = JSON.parse(readFileSync(
+          fileURLToPath(new URL('./public/data/public.json', import.meta.url)), 'utf8'))
+        const label = pub?.horizon?.current?.label
+        const goal = pub?.horizon?.goal?.age
+        if (label) text = `Горизонт Михаила ${label}${goal != null ? `, цель ${Math.round(goal)} лет` : ''}.`
+      } catch { /* строка без чисел */ }
+      return html.replace(/__OG_HORIZON__/g, text)
+    },
+  }
+}
 
 // base: './' — относительные пути к бандлу и данным.
 //
@@ -18,7 +48,7 @@ import vue from '@vitejs/plugin-vue'
 // нет, и терять нечего.
 export default defineConfig({
   base: './',
-  plugins: [vue()],
+  plugins: [vue(), ogFromPublic()],
   server: {
     // ⚠ ПОРТ ЗАКРЕПЛЁН (30.08.2026). По умолчанию vite берёт 5173, а занятый
     //   порт молча уступает следующему — адрес приложения начинает зависеть
