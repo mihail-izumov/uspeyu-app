@@ -64,12 +64,32 @@
     <title>Успею 87 – Михаил Изюмов</title>
 
     <!-- Карточка ссылки. Индексация закрыта выше, но при отправке адреса в
-         мессенджер превью всё равно собирается — пусть собирается знаком. -->
+         мессенджер превью всё равно собирается — пусть собирается знаком.
+
+         ⚠⚠ АДРЕСА ТОЛЬКО ПОЛНЫЕ (Д-72, 16.10.2026; слово владельца: «сделай
+         так, чтобы когда отправляю ссылку на сайт в телеграм, то открывалась
+         большая картинка с лого»). Стоял относительный `./icons/og-image.png`:
+         бот Телеграма такой адрес не разбирает и картинку не показывал вовсе.
+         Размеры названы, чтобы мессенджер сразу знал, что картинка широкая, и
+         ставил её большой под ссылкой, а не миниатюрой сбоку.
+         ⚠ `?v=` — номер картинки. Телеграм запоминает превью по адресу; новая
+         картинка под старым адресом показалась бы не сразу. Меняешь картинку
+         (`tools/build_brand.py`, функция `og_image`) — поднимай номер.
+         ⚠ Домен — из `public/CNAME`. Сменится домен — меняются и эти строки. -->
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Успею 87" />
+    <meta property="og:locale" content="ru_RU" />
+    <meta property="og:url" content="https://uspeyu.ru/" />
     <meta property="og:title" content="Успею 87 – Михаил Изюмов" />
-    <meta property="og:description" content="Горизонт планирования — теперь и для жизни." />
-    <meta property="og:image" content="./icons/og-image.png" />
+    <meta property="og:description" content="Ранскеил теперь и для жизни. Мой расчёт по анализам: сколько в среднем живут люди с такими данными и сколько к этому можно добавить." />
+    <meta property="og:image" content="https://uspeyu.ru/icons/og-image.png?v=2" />
+    <meta property="og:image:secure_url" content="https://uspeyu.ru/icons/og-image.png?v=2" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Знак «Успею 87» — клетка с числом 87 и буквой У" />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://uspeyu.ru/icons/og-image.png?v=2" />
   </head>
   <body>
     <div id="app"></div>
